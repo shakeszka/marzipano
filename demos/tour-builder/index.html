@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tour Builder | Marzipano</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="screen-welcome" class="screen active">
+  <div class="welcome-card">
+    <h1>Marzipano Tour Builder</h1>
+    <p>Create multi-scene virtual tours in your browser. Panoramas are processed locally and never uploaded.</p>
+    <div id="dropZone" class="drop-zone">
+      <p class="drop-title">Drag &amp; drop panoramas here</p>
+      <p class="drop-sub">Equirectangular JPEG (2:1) or six cubefaces (<code>_b</code>, <code>_d</code>, <code>_f</code>, <code>_l</code>, <code>_r</code>, <code>_u</code>)</p>
+      <button type="button" id="btnBrowse" class="btn primary">Select files</button>
+      <input type="file" id="fileInput" accept="image/jpeg,image/jpg" multiple hidden>
+    </div>
+    <ul class="requirements">
+      <li>Maximum cube face size: 4096 px</li>
+      <li>JPEG input (TIFF not supported in this demo)</li>
+      <li>Requires WebGL</li>
+    </ul>
+  </div>
+</div>
+
+<div id="screen-processing" class="screen">
+  <div class="processing-card">
+    <h2>Processing panorama</h2>
+    <p id="progressLabel">Starting…</p>
+    <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+  </div>
+</div>
+
+<div id="screen-editor" class="screen">
+  <header class="toolbar">
+    <div class="toolbar-left">
+      <label>Tour name
+        <input type="text" id="tourName" value="My Virtual Tour">
+      </label>
+    </div>
+    <div class="toolbar-right">
+      <button type="button" id="btnAddMore" class="btn">Add panorama</button>
+      <button type="button" id="btnExport" class="btn primary">Export zip</button>
+    </div>
+  </header>
+
+  <div class="editor-layout">
+    <aside class="sidebar sidebar-left">
+      <h2>Scenes</h2>
+      <ul id="sceneList" class="scene-list"></ul>
+    </aside>
+
+    <main class="preview-panel">
+      <div id="pano" class="pano"></div>
+      <div id="hotspotHint" class="hotspot-hint"></div>
+    </main>
+
+    <aside class="sidebar sidebar-right">
+      <section>
+        <h2>Scene</h2>
+        <label>Name
+          <input type="text" id="sceneName">
+        </label>
+        <button type="button" id="btnSetView" class="btn block">Set initial view</button>
+      </section>
+
+      <section>
+        <h2>Link hotspot</h2>
+        <label>Target scene
+          <select id="linkTarget"></select>
+        </label>
+        <button type="button" id="btnAddLink" class="btn block">Place link hotspot</button>
+        <ul id="linkHotspots" class="hotspot-list"></ul>
+      </section>
+
+      <section>
+        <h2>Info hotspot</h2>
+        <label>Title
+          <input type="text" id="infoTitle" placeholder="Title">
+        </label>
+        <label>Text
+          <textarea id="infoText" rows="3" placeholder="Description"></textarea>
+        </label>
+        <button type="button" id="btnAddInfo" class="btn block">Place info hotspot</button>
+        <ul id="infoHotspots" class="hotspot-list"></ul>
+      </section>
+
+      <section>
+        <h2>Settings</h2>
+        <label class="checkbox"><input type="checkbox" id="settingAutorotate"> Autorotate</label>
+        <label class="checkbox"><input type="checkbox" id="settingFullscreen" checked> Fullscreen button</label>
+        <label class="checkbox"><input type="checkbox" id="settingViewControls"> View control buttons</label>
+        <label>Mouse mode
+          <select id="settingMouseMode">
+            <option value="drag">Drag</option>
+            <option value="qtvr">QTVR</option>
+          </select>
+        </label>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="../../build/marzipano.js"></script>
+<script src="js/processor.js"></script>
+<script src="js/tour.js"></script>
+<script src="js/exporter.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
