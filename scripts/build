@@ -1,0 +1,10 @@
+#!/bin/bash
+set -e
+cd "$(dirname "$0")/.."
+
+PATH=scripts:node_modules/.bin:$PATH
+
+rm -rf build
+mkdir -p build
+
+browserify --noparse=node_modules/**/*.js -s Marzipano -o build/marzipano.js src/index.js

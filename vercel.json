@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "." }
+    }
+  ],
+  "routes": [
+    { "src": "^/$", "dest": "/demos/tour-builder/index.html" },
+    { "src": "^/builder$", "status": 308, "headers": { "Location": "/builder/" } },
+    { "src": "^/builder/$", "dest": "/demos/tour-builder/index.html" },
+    { "src": "^/builder/(.*)$", "dest": "/demos/tour-builder/$1" },
+    { "src": "^/tour$", "status": 308, "headers": { "Location": "/tour/" } },
+    { "src": "^/tour/$", "dest": "/demos/sample-tour/index.html" },
+    { "src": "^/tour/(.*)$", "dest": "/demos/sample-tour/$1" }
+  ]
+}

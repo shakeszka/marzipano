@@ -8,6 +8,7 @@
   var preview = null;
   var currentSceneId = null;
   var hotspotMode = null;
+  var actionMessageTimeout = null;
 
   var ui = {};
 
@@ -66,7 +67,6 @@
     var scene = tour.getScene(currentSceneId);
     if (!scene) {
       ui.linkHotspots.innerHTML = '<li class="empty">Select a scene</li>';
-      ui.infoHotspots.innerHTML = '<li class="empty">Select a scene</li>';
       return;
     }
 
@@ -79,24 +79,9 @@
       ui.linkHotspots.appendChild(li);
     });
 
-    ui.infoHotspots.innerHTML = scene.infoHotspots.length ? '' : '<li class="empty">None yet</li>';
-    scene.infoHotspots.forEach(function(hotspot, index) {
-      var li = document.createElement('li');
-      li.innerHTML = escapeHtml(hotspot.title) +
-        ' <button type="button" data-index="' + index + '" class="remove-hotspot">Remove</button>';
-      ui.infoHotspots.appendChild(li);
-    });
-
     ui.linkHotspots.querySelectorAll('.remove-hotspot').forEach(function(btn) {
       btn.addEventListener('click', function() {
         scene.linkHotspots.splice(parseInt(btn.getAttribute('data-index'), 10), 1);
-        refreshPreview();
-        renderHotspotLists();
-      });
-    });
-    ui.infoHotspots.querySelectorAll('.remove-hotspot').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        scene.infoHotspots.splice(parseInt(btn.getAttribute('data-index'), 10), 1);
         refreshPreview();
         renderHotspotLists();
       });
@@ -172,6 +157,10 @@
   function refreshPreview() {
     if (!preview) {
       preview = new TourPreview(ui.pano, tour);
+      preview.onSceneSwitch(function(id) {
+        currentSceneId = id;
+        renderSceneList();
+      });
     }
     preview.init();
     if (currentSceneId) {
@@ -179,20 +168,31 @@
     }
   }
 
+  function showActionMessage(text) {
+    ui.hotspotHint.textContent = text;
+    ui.hotspotHint.classList.add('visible');
+    if (actionMessageTimeout) {
+      clearTimeout(actionMessageTimeout);
+    }
+    actionMessageTimeout = setTimeout(function() {
+      ui.hotspotHint.classList.remove('visible');
+      actionMessageTimeout = null;
+    }, 1800);
+  }
+
   function setHotspotMode(mode) {
     hotspotMode = mode;
     ui.btnAddLink.classList.toggle('active', mode === 'link');
-    ui.btnAddInfo.classList.toggle('active', mode === 'info');
     ui.btnSetView.classList.remove('active');
     if (preview) {
       preview.setHotspotMode(mode, onHotspotPlaced);
     }
-    ui.hotspotHint.classList.toggle('visible', !!mode);
-    ui.hotspotHint.textContent = mode === 'link'
-      ? 'Click the panorama to place a link hotspot'
-      : mode === 'info'
-        ? 'Click the panorama to place an info hotspot'
-        : '';
+    if (mode === 'link') {
+      ui.hotspotHint.classList.add('visible');
+      ui.hotspotHint.textContent = 'Click the panorama to place a hotspot';
+    } else {
+      ui.hotspotHint.classList.remove('visible');
+    }
   }
 
   function onHotspotPlaced(coords) {
@@ -210,15 +210,6 @@
         pitch: coords.pitch,
         rotation: coords.rotation,
         target: target
-      });
-    } else if (hotspotMode === 'info') {
-      var title = ui.infoTitle.value.trim() || 'Info';
-      var text = ui.infoText.value.trim() || 'Description';
-      scene.infoHotspots.push({
-        yaw: coords.yaw,
-        pitch: coords.pitch,
-        title: title,
-        text: text
       });
     }
 
@@ -288,16 +279,13 @@
       if (preview) {
         preview.setInitialViewFromCurrent();
         ui.btnSetView.classList.add('active');
+        showActionMessage('Initial view saved');
         setTimeout(function() { ui.btnSetView.classList.remove('active'); }, 800);
       }
     });
 
     ui.btnAddLink.addEventListener('click', function() {
       setHotspotMode(hotspotMode === 'link' ? null : 'link');
-    });
-
-    ui.btnAddInfo.addEventListener('click', function() {
-      setHotspotMode(hotspotMode === 'info' ? null : 'info');
     });
 
     ui.pano.addEventListener('click', function(e) {
@@ -342,13 +330,9 @@
       tourName: $('tourName'),
       pano: $('pano'),
       linkHotspots: $('linkHotspots'),
-      infoHotspots: $('infoHotspots'),
       linkTarget: $('linkTarget'),
-      infoTitle: $('infoTitle'),
-      infoText: $('infoText'),
       btnSetView: $('btnSetView'),
       btnAddLink: $('btnAddLink'),
-      btnAddInfo: $('btnAddInfo'),
       hotspotHint: $('hotspotHint'),
       settingAutorotate: $('settingAutorotate'),
       settingFullscreen: $('settingFullscreen'),

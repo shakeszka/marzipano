@@ -56,8 +56,7 @@
           levels: scene.levels,
           faceSize: scene.faceSize,
           initialViewParameters: scene.initialViewParameters,
-          linkHotspots: scene.linkHotspots.slice(),
-          infoHotspots: scene.infoHotspots.slice()
+          linkHotspots: scene.linkHotspots.slice()
         };
       })
     };
@@ -95,7 +94,7 @@
   function createTileSource(scene) {
     var previewUrl = scene.previewUrl;
     var tileUrls = scene.tileUrls;
-    return Marzipano.ImageUrlSource(function(tile) {
+    return new Marzipano.ImageUrlSource(function(tile) {
       if (tile.z === 0) {
         var y = FACE_ORDER.indexOf(tile.face) / 6;
         return {
@@ -116,6 +115,7 @@
     this._current = null;
     this._hotspotMode = null;
     this._hotspotClickHandler = null;
+    this._sceneSwitchHandler = null;
   }
 
   TourPreview.prototype.init = function() {
@@ -158,9 +158,6 @@
     sceneData.linkHotspots.forEach(function(hotspot) {
       this._addLinkHotspot(scene, sceneData, hotspot);
     }, this);
-    sceneData.infoHotspots.forEach(function(hotspot) {
-      this._addInfoHotspot(scene, hotspot);
-    }, this);
 
     return { data: sceneData, scene: scene, view: view };
   };
@@ -170,49 +167,106 @@
     var wrapper = document.createElement('div');
     wrapper.className = 'hotspot link-hotspot preview-hotspot';
 
+    var target = this._tour.getScene(hotspot.target);
+    if (target) {
+      var label = document.createElement('div');
+      label.className = 'preview-link-label';
+      label.textContent = target.name;
+      wrapper.appendChild(label);
+    }
+
     var icon = document.createElement('div');
     icon.className = 'link-hotspot-icon preview-link-icon';
-    icon.textContent = '→';
-    icon.style.transform = 'rotate(' + hotspot.rotation + 'rad)';
     wrapper.appendChild(icon);
+
+    var marzipanoHotspot = marzipanoScene.hotspotContainer().createHotspot(wrapper, {
+      yaw: hotspot.yaw,
+      pitch: hotspot.pitch
+    });
+
+    var dragState = { active: false, moved: false, startX: 0, startY: 0 };
+
+    function updateHotspotPosition(event) {
+      var rect = self._container.getBoundingClientRect();
+      var coords = self._current.view.screenToCoordinates({
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      });
+      if (!coords) {
+        return;
+      }
+      marzipanoHotspot.setPosition(coords);
+      hotspot.yaw = coords.yaw;
+      hotspot.pitch = coords.pitch;
+    }
+
+    function onPointerMove(event) {
+      if (!dragState.active) {
+        return;
+      }
+      var dx = event.clientX - dragState.startX;
+      var dy = event.clientY - dragState.startY;
+      if (!dragState.moved && Math.sqrt(dx * dx + dy * dy) > 4) {
+        dragState.moved = true;
+      }
+      event.preventDefault();
+      updateHotspotPosition(event);
+    }
+
+    function onPointerUp(event) {
+      if (!dragState.active) {
+        return;
+      }
+      dragState.active = false;
+      wrapper.releasePointerCapture(event.pointerId);
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+      if (dragState.moved) {
+        event.stopPropagation();
+      }
+    }
+
+    wrapper.addEventListener('pointerdown', function(event) {
+      if (self._hotspotMode || event.button !== 0) {
+        return;
+      }
+      dragState.active = true;
+      dragState.moved = false;
+      dragState.startX = event.clientX;
+      dragState.startY = event.clientY;
+      wrapper.setPointerCapture(event.pointerId);
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp);
+      event.stopPropagation();
+      event.preventDefault();
+    });
 
     wrapper.addEventListener('click', function(e) {
       e.stopPropagation();
-      if (self._hotspotMode) {
+      if (self._hotspotMode || dragState.moved) {
+        dragState.moved = false;
         return;
       }
       self.switchScene(hotspot.target);
-    });
-
-    marzipanoScene.hotspotContainer().createHotspot(wrapper, {
-      yaw: hotspot.yaw,
-      pitch: hotspot.pitch
-    });
-  };
-
-  TourPreview.prototype._addInfoHotspot = function(marzipanoScene, hotspot) {
-    var wrapper = document.createElement('div');
-    wrapper.className = 'hotspot info-hotspot preview-hotspot';
-
-    var label = document.createElement('div');
-    label.className = 'preview-info-label';
-    label.textContent = 'i';
-    wrapper.appendChild(label);
-
-    marzipanoScene.hotspotContainer().createHotspot(wrapper, {
-      yaw: hotspot.yaw,
-      pitch: hotspot.pitch
     });
   };
 
   TourPreview.prototype.switchScene = function(id) {
     var entry = this._scenes.filter(function(s) { return s.data.id === id; })[0];
     if (!entry) {
-      return null;
+      var sceneData = this._tour.getScene(id);
+      if (!sceneData) {
+        return null;
+      }
+      entry = this._createScene(sceneData);
+      this._scenes.push(entry);
     }
     entry.view.setParameters(entry.data.initialViewParameters);
     entry.scene.switchTo();
     this._current = entry;
+    if (this._sceneSwitchHandler) {
+      this._sceneSwitchHandler(id);
+    }
     return entry;
   };
 
@@ -236,6 +290,10 @@
     this._hotspotMode = mode;
     this._hotspotClickHandler = callback;
     this._container.classList.toggle('placing-hotspot', !!mode);
+  };
+
+  TourPreview.prototype.onSceneSwitch = function(handler) {
+    this._sceneSwitchHandler = handler;
   };
 
   TourPreview.prototype.handleClick = function(event) {

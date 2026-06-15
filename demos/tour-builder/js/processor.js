@@ -33,12 +33,12 @@
     '  return vec2(lon / (2.0 * PI) + 0.5, 0.5 - lat / PI);',
     '}',
     'vec3 faceDirection(int face, vec2 fc) {',
-    '  if (face == 0) return vec3(-fc.x, -fc.y,  1.0);', // b
-    '  if (face == 1) return vec3( fc.x, -1.0, -fc.y);', // d
-    '  if (face == 2) return vec3( fc.x, -fc.y, -1.0);', // f
-    '  if (face == 3) return vec3(-1.0, -fc.y,  fc.x);', // l
-    '  if (face == 4) return vec3( 1.0, -fc.y, -fc.x);', // r
-    '  return vec3(fc.x, 1.0, fc.y);',                   // u
+    '  if (face == 0) return vec3(-fc.x,  fc.y, -1.0);', // b
+    '  if (face == 1) return vec3( fc.x, -1.0,  fc.y);', // d
+    '  if (face == 2) return vec3( fc.x,  fc.y,  1.0);', // f
+    '  if (face == 3) return vec3(-1.0,  fc.y,  fc.x);', // l
+    '  if (face == 4) return vec3( 1.0,  fc.y, -fc.x);', // r
+    '  return vec3(fc.x,  1.0, -fc.y);',                 // u
     '}',
     'void main() {',
     '  vec2 fc = vUV * 2.0 - 1.0;',
@@ -426,8 +426,7 @@
             yaw: 0,
             fov: Math.PI / 2
           },
-          linkHotspots: [],
-          infoHotspots: []
+          linkHotspots: []
         };
       });
     });

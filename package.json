@@ -17,6 +17,8 @@
     "test": "testem ci",
     "livetest": "testem",
     "dev": "scripts/dev",
+    "build": "scripts/build",
+    "tour": "node scripts/tour-server.js",
     "release": "scripts/release",
     "deploy": "scripts/deploy",
     "prepublishOnly": "scripts/prepublish"
