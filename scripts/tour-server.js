@@ -8,7 +8,7 @@ var url = require('url');
 
 var PORT = parseInt(process.env.PORT, 10) || 8000;
 var ROOT = path.resolve(__dirname, '..');
-var TOUR_BASE = '/tour/';
+var TOUR_BASE = '/3dtour/';
 var MIME_TYPES = {
   html: 'text/html; charset=utf-8',
   js: 'application/javascript; charset=utf-8',
@@ -38,11 +38,11 @@ function getStaticFile(reqUrl) {
   var parsedUrl = url.parse(reqUrl);
   var pathname = parsedUrl.pathname;
 
-  if (pathname === '/tour') {
-    return { redirect: '/tour/' };
+  if (pathname === '/3dtour') {
+    return { redirect: '/3dtour/' };
   }
   if (pathname === '/') {
-    return { redirect: '/tour/' };
+    return { redirect: '/3dtour/' };
   }
 
   if (pathname.indexOf(TOUR_BASE) === 0) {
@@ -89,5 +89,5 @@ var server = http.createServer(function(req, res) {
 });
 
 server.listen(PORT, function() {
-  console.log('Serving tour builder at http://localhost:' + PORT + '/tour/');
+  console.log('Serving tour builder at http://localhost:' + PORT + '/3dtour/');
 });
