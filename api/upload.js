@@ -18,16 +18,28 @@ module.exports = async function handler(req, res) {
   try {
     const { fileName, fileData, tourId } = req.body;
 
+    if (!fileName || !fileData || !tourId) {
+      return res.status(400).json({ error: 'Missing required fields', received: { fileName: !!fileName, fileData: !!fileData, tourId: !!tourId } });
+    }
+
     const buffer = Buffer.from(fileData, 'base64');
     const filePath = `tours/${tourId}/${fileName}`;
+    
+    console.log('Uploading tile:', { filePath, bufferSize: buffer.length, tourId });
+
     const { data, error } = await supabase.storage
       .from('panoramas')
       .upload(filePath, buffer, {
         contentType: 'image/jpeg',
-        upsert: false
+        upsert: true  // Allow overwrites
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase upload error:', error);
+      throw error;
+    }
+
+    console.log('Upload successful:', filePath);
 
     const { data: publicUrlData, error: publicUrlError } = supabase.storage
       .from('panoramas')
@@ -41,7 +53,7 @@ module.exports = async function handler(req, res) {
       path: filePath 
     });
   } catch (error) {
-    console.error('Error uploading image:', error);
-    res.status(500).json({ error: error.message, details: error.details || null });
+    console.error('Error uploading image:', error.message, error);
+    res.status(500).json({ error: error.message, details: error.details || error.toString() });
   }
 };
