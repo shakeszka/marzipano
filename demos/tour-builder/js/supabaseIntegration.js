@@ -37,9 +37,17 @@
         })
       });
 
-      const result = await response.json().catch(() => ({}));
+      let result = {};
+      let rawBody = null;
+      try {
+        result = await response.json();
+      } catch (e) {
+        rawBody = await response.text().catch(() => null);
+      }
+
       if (!response.ok) {
-        throw new Error(result.error || result.message || 'Failed to save tour');
+        const details = (result && (result.error || result.message)) || rawBody || 'No response body';
+        throw new Error('HTTP ' + response.status + ': ' + details);
       }
 
       const { tourId } = result;
