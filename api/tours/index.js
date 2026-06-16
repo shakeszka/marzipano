@@ -1,8 +1,18 @@
 const { supabase } = require('../_supabase.js');
 
 module.exports = async function handler(req, res) {
+  // CORS preflight
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    console.error('Unexpected method on /api/tours:', req.method);
+    return res.status(405).json({ error: 'Method not allowed', method: req.method });
   }
 
   try {
@@ -55,7 +65,7 @@ module.exports = async function handler(req, res) {
 
     res.status(201).json({ tourId, message: 'Tour saved successfully' });
   } catch (error) {
-    console.error('Error saving tour:', error);
-    res.status(500).json({ error: error.message, details: error.details || null });
+    console.error('Error saving tour:', error && (error.message || error));
+    res.status(500).json({ error: error.message || String(error), details: error && error.details ? error.details : null });
   }
 };
