@@ -41,8 +41,8 @@
             await Promise.all(
               tileKeys.map(async (key) => {
                 const blob = scene.tileBlobs[key];
-                // Upload to tours/{tourId}/{sceneIndex}/{tile_path}
-                const tilePath = `tours/${tourId}/${index}/${key}.jpg`;
+                // Send scene-relative path; endpoint will prepend tours/{tourId}/
+                const sceneRelativePath = `${index}/${key}.jpg`;
                 
                 return new Promise((resolve, reject) => {
                   const reader = new FileReader();
@@ -53,7 +53,7 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                          fileName: tilePath,
+                          fileName: sceneRelativePath,
                           fileData: base64,
                           tourId: tourId
                         })
