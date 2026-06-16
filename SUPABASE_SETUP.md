@@ -72,7 +72,7 @@ Then open: `http://localhost:8000/3dtour/`
 
 ### View a Tour
 
-Access the viewer with: `https://<deployment>/3dtour/viewer?id=<tour-id>`
+Access the viewer with: `https://<deployment>/<tour-id>/tour`
 
 Replace `<tour-id>` with the ID returned when you saved the tour.
 
@@ -98,4 +98,4 @@ Upload a panorama image
 
 **Tour not saving**: Check browser console for errors. Verify `.env.local` has correct Supabase credentials.
 
-**Cannot access viewer**: The viewer page is at `/3dtour/viewer?id=<tour-id>` - make sure you include the `?id=` parameter.
+**Cannot access viewer**: The viewer page is at `/<tour-id>/tour`.

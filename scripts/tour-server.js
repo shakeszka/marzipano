@@ -59,6 +59,10 @@ function getStaticFile(reqUrl) {
     return { path: toursListFilePath };
   }
 
+  if (/^\/[0-9a-fA-F-]{36}\/tour\/?$/.test(pathname)) {
+    return { path: path.join(ROOT, 'demos', 'sample-tour', 'viewer.html') };
+  }
+
   if (pathname.indexOf(TOUR_BASE) === 0) {
     var subPath = pathname.slice(TOUR_BASE.length);
     if (!subPath || subPath === '/') {

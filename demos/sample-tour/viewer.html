@@ -78,12 +78,19 @@
   <script src="/builder/js/viewer.js"></script>
   <script>
     (function() {
-      // Get tour ID from URL
-      var params = new URLSearchParams(window.location.search);
-      var tourId = params.get('id');
+      function getTourId() {
+        var match = window.location.pathname.match(/^\/([0-9a-fA-F-]{36})\/tour\/?$/);
+        if (match) {
+          return match[1];
+        }
+        var params = new URLSearchParams(window.location.search);
+        return params.get('id');
+      }
+
+      var tourId = getTourId();
 
       if (!tourId) {
-        document.getElementById('loadStatus').textContent = 'No tour ID provided. Use ?id=<tour-id>';
+        document.getElementById('loadStatus').textContent = 'No tour ID provided.';
         return;
       }
 

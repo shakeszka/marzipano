@@ -73,7 +73,7 @@
           </div>
         </div>
         <div class="tour-card-footer">
-          <a href="/3dtour/viewer?id=${tour.id}" class="tour-btn tour-btn-view">👁️ View Tour</a>
+          <a href="/${encodeURIComponent(tour.id)}/tour" class="tour-btn tour-btn-view">👁️ View Tour</a>
         </div>
       </div>
     `).join('');

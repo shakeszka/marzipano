@@ -221,7 +221,7 @@
         <strong>Tour ID:</strong> <code>${tourId}</code>
       </div>
       <div style="margin-top: 20px;">
-        <a href="/3dtour/viewer?id=${tourId}" style="display: inline-block; background: #007bff; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; margin-right: 10px;">View Tour</a>
+        <a href="/${tourId}/tour" style="display: inline-block; background: #007bff; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; margin-right: 10px;">View Tour</a>
         <a href="/tours-list" style="display: inline-block; background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">All Tours</a>
       </div>
       <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 8px 16px; background: #e9ecef; border: none; border-radius: 4px; cursor: pointer;">Close</button>
