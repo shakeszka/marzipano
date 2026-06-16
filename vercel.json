@@ -2,12 +2,17 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "." }
     }
   ],
   "routes": [
+    { "src": "^/api/(.*)$", "dest": "/api/$1" },
     { "src": "^/$", "status": 308, "headers": { "Location": "/builder/" } },
     { "src": "^/builder$", "status": 308, "headers": { "Location": "/builder/" } },
     { "src": "^/builder/$", "dest": "/demos/tour-builder/index.html" },
