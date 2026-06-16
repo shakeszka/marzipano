@@ -24,6 +24,7 @@
     "prepublishOnly": "scripts/prepublish"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
     "bowser": "1.9.4",
     "gl-matrix": "3.3.0",
     "hammerjs": "2.0.4",

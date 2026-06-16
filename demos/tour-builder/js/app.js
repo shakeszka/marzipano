@@ -314,6 +314,18 @@
         ui.btnExport.textContent = 'Export zip';
       });
     });
+
+    ui.btnSave.addEventListener('click', function() {
+      ui.btnSave.disabled = true;
+      ui.btnSave.textContent = 'Saving…';
+      SupabaseIntegration.saveTourToSupabase(tour, preview).then(function(tourId) {
+        ui.btnSave.disabled = false;
+        ui.btnSave.textContent = 'Save to cloud';
+      }).catch(function(err) {
+        ui.btnSave.disabled = false;
+        ui.btnSave.textContent = 'Save to cloud';
+      });
+    });
   }
 
   function init() {
@@ -323,6 +335,7 @@
       btnBrowse: $('btnBrowse'),
       btnAddMore: $('btnAddMore'),
       btnExport: $('btnExport'),
+      btnSave: $('btnSave'),
       progressLabel: $('progressLabel'),
       progressBar: $('progressBar'),
       sceneList: $('sceneList'),

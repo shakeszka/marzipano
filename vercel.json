@@ -13,6 +13,7 @@
     { "src": "^/builder/$", "dest": "/demos/tour-builder/index.html" },
     { "src": "^/builder/(.*)$", "dest": "/demos/tour-builder/$1" },
     { "src": "^/3dtour$", "status": 308, "headers": { "Location": "/3dtour/" } },
+    { "src": "^/3dtour/viewer$", "dest": "/demos/sample-tour/viewer.html" },
     { "src": "^/3dtour/$", "dest": "/demos/sample-tour/index.html" },
     { "src": "^/3dtour/(.*)$", "dest": "/demos/sample-tour/$1" }
   ]

@@ -40,9 +40,11 @@
       <label>Tour name
         <input type="text" id="tourName" value="My Virtual Tour">
       </label>
+      <span id="saveStatus" class="save-status"></span>
     </div>
     <div class="toolbar-right">
       <button type="button" id="btnAddMore" class="btn">Add panorama</button>
+      <button type="button" id="btnSave" class="btn">Save to cloud</button>
       <button type="button" id="btnExport" class="btn primary">Export zip</button>
     </div>
   </header>
@@ -97,6 +99,7 @@
 <script src="js/processor.js"></script>
 <script src="js/tour.js"></script>
 <script src="js/exporter.js"></script>
+<script src="js/supabaseIntegration.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
