@@ -34,16 +34,18 @@
       if (status) status.textContent = 'Uploading panoramas...';
 
       // Upload panorama tiles for each scene under tours/{tourId}/{sceneIndex}/...
+      console.log('Saving tour', { tourId: tourId, sceneCount: tour.scenes.length, origin: window.location.origin });
       await Promise.all(
         tour.scenes.map(async (scene, index) => {
           if (scene.tileBlobs && Object.keys(scene.tileBlobs).length > 0) {
             const tileKeys = Object.keys(scene.tileBlobs);
+            console.log('Uploading scene tiles', { sceneIndex: index, tileCount: tileKeys.length });
             await Promise.all(
               tileKeys.map(async (key) => {
                 const blob = scene.tileBlobs[key];
                 // Send scene-relative path; endpoint will prepend tours/{tourId}/
                 const sceneRelativePath = `${index}/${key}.jpg`;
-                
+
                 return new Promise((resolve, reject) => {
                   const reader = new FileReader();
                   reader.onload = async () => {
@@ -58,7 +60,11 @@
                           tourId: tourId
                         })
                       });
-                      if (!resp.ok) throw new Error('Tile upload failed');
+                      const text = await resp.text();
+                      console.log('Upload response', { url: resp.url, status: resp.status, ok: resp.ok, body: text });
+                      if (!resp.ok) {
+                        throw new Error('Tile upload failed: ' + resp.status + ' ' + text);
+                      }
                       resolve();
                     } catch (e) {
                       reject(e);
@@ -69,6 +75,8 @@
                 });
               })
             );
+          } else {
+            console.log('Skipping scene upload: no tile blobs', index);
           }
         })
       );
