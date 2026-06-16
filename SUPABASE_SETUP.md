@@ -39,9 +39,11 @@ Create or verify `.env.local` with:
 
 ```
 SUPABASE_URL=https://qnquicysinpybpnlqtan.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFucXVpY3lzaW5weWJwbmxxdGFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MDAxMDIsImV4cCI6MjA5NzE3NjEwMn0.gULuUtUgO0mMmMjZGTQWlxV4lgByTBBCO0Gt_jijHyM
+SUPABASE_ANON_KEY=your_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 ```
 
+Then in Vercel add the same values in Project Settings → Environment Variables. The `SUPABASE_SERVICE_ROLE_KEY` is required for the API routes to write tours and scenes to the database.
 ## Local Development
 
 ### Build the Project

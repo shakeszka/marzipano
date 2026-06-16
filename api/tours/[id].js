@@ -1,10 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+const { supabase } = require('../api/_supabase.js');
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   const { id } = req.query;
 
   if (req.method === 'GET') {

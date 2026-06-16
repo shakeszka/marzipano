@@ -37,11 +37,12 @@
         })
       });
 
+      const result = await response.json().catch(() => ({}));
       if (!response.ok) {
-        throw new Error('Failed to save tour');
+        throw new Error(result.error || result.message || 'Failed to save tour');
       }
 
-      const { tourId } = await response.json();
+      const { tourId } = result;
       
       if (status) {
         status.textContent = 'Tour saved! ID: ' + tourId;

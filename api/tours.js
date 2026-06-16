@@ -1,10 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+const { supabase } = require('./_supabase.js');
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -48,7 +44,7 @@ export default async function handler(req, res) {
             .from('hotspots')
             .insert([{
               scene_id: sceneData.id,
-              target_scene_id: hotspot.targetSceneIndex !== undefined ? scenes[hotspot.targetSceneIndex].id : null,
+              target_scene_id: hotspot.targetSceneIndex !== undefined ? scenes[hotspot.targetSceneIndex]?.id : null,
               title: hotspot.title,
               yaw: hotspot.yaw,
               pitch: hotspot.pitch,
@@ -63,6 +59,6 @@ export default async function handler(req, res) {
     res.status(201).json({ tourId, message: 'Tour saved successfully' });
   } catch (error) {
     console.error('Error saving tour:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: error.message, details: error.details || null });
   }
-}
+};
