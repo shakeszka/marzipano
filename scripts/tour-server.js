@@ -9,6 +9,7 @@ var url = require('url');
 var PORT = parseInt(process.env.PORT, 10) || 8000;
 var ROOT = path.resolve(__dirname, '..');
 var TOUR_BASE = '/3dtour/';
+var TOURS_LIST_BASE = '/tours-list/';
 var MIME_TYPES = {
   html: 'text/html; charset=utf-8',
   js: 'application/javascript; charset=utf-8',
@@ -43,6 +44,19 @@ function getStaticFile(reqUrl) {
   }
   if (pathname === '/') {
     return { redirect: '/3dtour/' };
+  }
+
+  if (pathname === '/tours-list') {
+    return { redirect: '/tours-list/' };
+  }
+
+  if (pathname.indexOf(TOURS_LIST_BASE) === 0) {
+    var toursListSubPath = pathname.slice(TOURS_LIST_BASE.length);
+    if (!toursListSubPath || toursListSubPath === '/') {
+      toursListSubPath = 'index.html';
+    }
+    var toursListFilePath = safePath(path.join(ROOT, 'demos', 'tours-list'), toursListSubPath);
+    return { path: toursListFilePath };
   }
 
   if (pathname.indexOf(TOUR_BASE) === 0) {
