@@ -16,6 +16,7 @@
     }
   ],
   "routes": [
+    { "src": "^/api/tours-list/?$", "dest": "/api/tours-list/index.js" },
     { "src": "^/api/(.*)$", "dest": "/api/$1" },
     { "src": "^/$", "status": 308, "headers": { "Location": "/builder/" } },
     { "src": "^/builder$", "status": 308, "headers": { "Location": "/builder/" } },

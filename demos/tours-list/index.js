@@ -5,9 +5,14 @@
 
   async function loadAllTours() {
     try {
-      const response = await fetch('/api/tours-list');
+      const response = await fetch('/api/tours-list/');
       if (!response.ok) {
-        throw new Error('Failed to load tours');
+        let message = 'Failed to load tours';
+        try {
+          const errorData = await response.json();
+          message = errorData.error || message;
+        } catch (e) {}
+        throw new Error(message);
       }
       const data = await response.json();
       return data.tours || [];
