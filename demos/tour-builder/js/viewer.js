@@ -43,8 +43,12 @@
     ]);
 
     // Create tile source (for cubes)
+    // imageUrl is stored as "tours/{tourId}/{sceneIndex}"
+    // Construct full Supabase URL: https://PROJECT.supabase.co/storage/v1/object/public/panoramas/{imageUrl}/{tile}
+    var supabaseBase = 'https://qnquicysinpybpnlqtan.supabase.co/storage/v1/object/public/panoramas/';
     var source = new Marzipano.ImageUrlSource(function(tile) {
-      return sceneData.imageUrl + '/' + tile.face + '/' + tile.z + '/' + tile.x + '.jpg';
+      var tilePath = sceneData.imageUrl + '/' + tile.face + '/' + tile.z + '/' + tile.x + '.jpg';
+      return supabaseBase + tilePath;
     });
 
     // Create view

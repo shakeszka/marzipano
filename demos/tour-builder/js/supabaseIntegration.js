@@ -6,14 +6,79 @@
 
   async function saveTourToSupabase(tour, preview) {
     try {
-      // Show message
       const status = document.getElementById('saveStatus');
       if (status) status.textContent = 'Saving tour to cloud...';
 
-      // Prepare scenes data
-      const scenes = tour.scenes.map((scene, index) => ({
+      // First, create a temporary tour to get tourId
+      const tempTourResponse = await fetch('/api/tours', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: tour.name,
+          description: 'Built with Tour Builder',
+          scenes: [],
+          isPublic: false
+        })
+      });
+
+      let tempResult = {};
+      try {
+        tempResult = await tempTourResponse.json();
+      } catch (e) {}
+
+      if (!tempTourResponse.ok) {
+        throw new Error('HTTP ' + tempTourResponse.status + ': Failed to create tour');
+      }
+
+      const tourId = tempResult.tourId;
+      if (status) status.textContent = 'Uploading panoramas...';
+
+      // Upload panorama tiles for each scene under tours/{tourId}/{sceneIndex}/...
+      await Promise.all(
+        tour.scenes.map(async (scene, index) => {
+          if (scene.tileBlobs && Object.keys(scene.tileBlobs).length > 0) {
+            const tileKeys = Object.keys(scene.tileBlobs);
+            await Promise.all(
+              tileKeys.map(async (key) => {
+                const blob = scene.tileBlobs[key];
+                // Upload to tours/{tourId}/{sceneIndex}/{tile_path}
+                const tilePath = `tours/${tourId}/${index}/${key}.jpg`;
+                
+                return new Promise((resolve, reject) => {
+                  const reader = new FileReader();
+                  reader.onload = async () => {
+                    try {
+                      const base64 = reader.result.split(',')[1];
+                      const resp = await fetch('/api/upload', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          fileName: tilePath,
+                          fileData: base64,
+                          tourId: tourId
+                        })
+                      });
+                      if (!resp.ok) throw new Error('Tile upload failed');
+                      resolve();
+                    } catch (e) {
+                      reject(e);
+                    }
+                  };
+                  reader.onerror = () => reject(new Error('Blob read failed'));
+                  reader.readAsDataURL(blob);
+                });
+              })
+            );
+          }
+        })
+      );
+
+      if (status) status.textContent = 'Finalizing tour...';
+
+      // Prepare scenes with shared base URL
+      const scenesWithUrls = tour.scenes.map((scene, index) => ({
         title: scene.name,
-        imageUrl: scene.imageUrl || '',
+        imageUrl: `tours/${tourId}/${index}`,
         initialYaw: scene.initialYaw || 0,
         initialPitch: scene.initialPitch || 0,
         hotspots: (scene.linkHotspots || []).map(hotspot => ({
@@ -25,39 +90,34 @@
         }))
       }));
 
-      // Save tour via API
-      const response = await fetch('/api/tours', {
+      // Save the full tour with scene data
+      const finalResponse = await fetch('/api/tours', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: tour.name,
           description: 'Built with Tour Builder',
-          scenes: scenes,
+          scenes: scenesWithUrls,
           isPublic: false
         })
       });
 
-      let result = {};
-      let rawBody = null;
+      let finalResult = {};
       try {
-        result = await response.json();
-      } catch (e) {
-        rawBody = await response.text().catch(() => null);
+        finalResult = await finalResponse.json();
+      } catch (e) {}
+
+      if (!finalResponse.ok) {
+        throw new Error('HTTP ' + finalResponse.status + ': Failed to save tour');
       }
 
-      if (!response.ok) {
-        const details = (result && (result.error || result.message)) || rawBody || 'No response body';
-        throw new Error('HTTP ' + response.status + ': ' + details);
-      }
-
-      const { tourId } = result;
-      
+      const finalTourId = finalResult.tourId;
       if (status) {
-        status.textContent = 'Tour saved! ID: ' + tourId;
+        status.textContent = 'Tour saved! ID: ' + finalTourId;
         setTimeout(() => { status.textContent = ''; }, 3000);
       }
 
-      return tourId;
+      return finalTourId;
     } catch (error) {
       console.error('Error saving tour:', error);
       alert('Failed to save tour: ' + error.message);
