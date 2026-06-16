@@ -5,7 +5,7 @@
   'use strict';
 
   var Marzipano = global.Marzipano;
-  var viewer, stage, effects, scenes = [];
+  var viewer, scenes = [];
   var tourData = null;
   var currentScene = null;
 
@@ -29,39 +29,61 @@
 
     viewer = new Marzipano.Viewer(container, viewerOpts);
 
-    // Create stage
-    stage = viewer.stage();
-
     return viewer;
   }
 
-  function createScene(sceneData, index) {
-    // Determine geometry
-    var geometry = new Marzipano.CubeGeometry([
-      { tileSize: 256, size: 1024 },
-      { tileSize: 256, size: 512 }
-    ]);
+  function getSceneId(sceneData) {
+    return sceneData.id;
+  }
 
-    // Create tile source (for cubes)
-    // imageUrl is stored as "tours/{tourId}/{sceneIndex}"
-    // Construct full Supabase URL: https://PROJECT.supabase.co/storage/v1/object/public/panoramas/{imageUrl}/{tile}
+  function getSceneImageUrl(sceneData) {
+    return sceneData.imageUrl || sceneData.image_url;
+  }
+
+  function buildDefaultLevels() {
+    return [
+      { tileSize: 256, size: 256, fallbackOnly: true },
+      { tileSize: 512, size: 512 },
+      { tileSize: 512, size: 1024 },
+      { tileSize: 512, size: 2048 },
+      { tileSize: 512, size: 4096 }
+    ];
+  }
+
+  function createScene(sceneData, index) {
+    var imageUrl = getSceneImageUrl(sceneData);
+    if (!imageUrl) {
+      throw new Error('Scene is missing image URL.');
+    }
+
+    var levels = sceneData.levels || buildDefaultLevels();
+    var faceSize = sceneData.faceSize || sceneData.face_size || levels[levels.length - 1].size;
+    var geometry = new Marzipano.CubeGeometry(levels);
     var supabaseBase = 'https://qnquicysinpybpnlqtan.supabase.co/storage/v1/object/public/panoramas/';
     var source = new Marzipano.ImageUrlSource(function(tile) {
-      var tilePath = sceneData.imageUrl + '/' + tile.face + '/' + tile.z + '/' + tile.x + '.jpg';
-      return supabaseBase + tilePath;
+      if (tile.z === 0) {
+        return { url: supabaseBase + imageUrl + '/1/' + tile.face + '/0/0.jpg' };
+      }
+      var tilePath = imageUrl + '/' + tile.z + '/' + tile.face + '/' + tile.y + '/' + tile.x + '.jpg';
+      return { url: supabaseBase + tilePath };
     });
-
-    // Create view
-    var view = new Marzipano.RectilinearView(
-      { yaw: sceneData.yaw || 0, pitch: sceneData.pitch || 0, fov: Math.PI / 2 }
+    var limiter = Marzipano.RectilinearView.limit.traditional(
+      faceSize,
+      100 * Math.PI / 180,
+      120 * Math.PI / 180
     );
+    var view = new Marzipano.RectilinearView({
+      yaw: sceneData.yaw || sceneData.initialYaw || 0,
+      pitch: sceneData.pitch || sceneData.initialPitch || 0,
+      fov: sceneData.fov || Math.PI / 2
+    }, limiter);
 
-    // Create scene
-    var sceneOpts = { stage: stage };
-    var scene = viewer.createScene(sceneOpts);
-    scene.source(source);
-    scene.geometry(geometry);
-    scene.view(view);
+    var scene = viewer.createScene({
+      source: source,
+      geometry: geometry,
+      view: view,
+      pinFirstLevel: true
+    });
 
     // Store reference
     sceneData.marzipanoScene = scene;
@@ -69,7 +91,7 @@
     // Add hotspots
     if (sceneData.hotspots && sceneData.hotspots.length > 0) {
       sceneData.hotspots.forEach(function(hotspot) {
-        addHotspot(scene, hotspot, sceneData.id);
+        addHotspot(scene, hotspot, getSceneId(sceneData));
       });
     }
 
@@ -90,13 +112,11 @@
       pitch: hotspotData.pitch
     };
 
-    // Create hotspot
-    var hotspot = new Marzipano.Hotspot(element, coords);
-
     // Click handler
     element.addEventListener('click', function() {
-      if (hotspotData.targetSceneId) {
-        var targetScene = tourData.scenes.find(function(s) { return s.id === hotspotData.targetSceneId; });
+      var targetSceneId = hotspotData.targetSceneId || hotspotData.target_scene_id;
+      if (targetSceneId) {
+        var targetScene = tourData.scenes.find(function(s) { return getSceneId(s) === targetSceneId; });
         if (targetScene && targetScene.marzipanoScene) {
           viewer.switchScene(targetScene.marzipanoScene);
           currentScene = targetScene.marzipanoScene;
@@ -104,7 +124,7 @@
       }
     });
 
-    scene.hotspots().add(hotspot);
+    scene.hotspotContainer().createHotspot(element, coords);
   }
 
   async function loadTourFromUrl(tourId) {

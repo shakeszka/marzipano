@@ -87,8 +87,8 @@
       const scenesWithUrls = tour.scenes.map((scene, index) => ({
         title: scene.name,
         imageUrl: `tours/${tourId}/${index}`,
-        initialYaw: scene.initialYaw || 0,
-        initialPitch: scene.initialPitch || 0,
+        initialYaw: scene.initialViewParameters ? scene.initialViewParameters.yaw : 0,
+        initialPitch: scene.initialViewParameters ? scene.initialViewParameters.pitch : 0,
         hotspots: (scene.linkHotspots || []).map(hotspot => ({
           title: tour.getScene(hotspot.target)?.name || 'Untitled',
           yaw: hotspot.yaw,

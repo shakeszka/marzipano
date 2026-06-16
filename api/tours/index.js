@@ -28,6 +28,8 @@ module.exports = async function handler(req, res) {
 
     const tourId = tourData.id;
 
+    const savedScenes = [];
+
     for (let i = 0; i < scenes.length; i++) {
       const scene = scenes[i];
       const { data: sceneData, error: sceneError } = await supabase
@@ -45,21 +47,32 @@ module.exports = async function handler(req, res) {
 
       if (sceneError) throw sceneError;
 
-      if (scene.hotspots && scene.hotspots.length > 0) {
-        for (const hotspot of scene.hotspots) {
-          const { error: hotspotError } = await supabase
-            .from('hotspots')
-            .insert([{
-              scene_id: sceneData.id,
-              target_scene_id: hotspot.targetSceneIndex !== undefined ? scenes[hotspot.targetSceneIndex]?.id : null,
-              title: hotspot.title,
-              yaw: hotspot.yaw,
-              pitch: hotspot.pitch,
-              hotspot_type: hotspot.type || 'link'
-            }]);
+      savedScenes.push(sceneData);
+    }
 
-          if (hotspotError) throw hotspotError;
-        }
+    for (let i = 0; i < scenes.length; i++) {
+      const scene = scenes[i];
+      if (!scene.hotspots || scene.hotspots.length === 0) {
+        continue;
+      }
+
+      for (const hotspot of scene.hotspots) {
+        const targetScene = hotspot.targetSceneIndex !== undefined
+          ? savedScenes[hotspot.targetSceneIndex]
+          : null;
+
+        const { error: hotspotError } = await supabase
+          .from('hotspots')
+          .insert([{
+            scene_id: savedScenes[i].id,
+            target_scene_id: targetScene ? targetScene.id : null,
+            title: hotspot.title,
+            yaw: hotspot.yaw,
+            pitch: hotspot.pitch,
+            hotspot_type: hotspot.type || 'link'
+          }]);
+
+        if (hotspotError) throw hotspotError;
       }
     }
 
