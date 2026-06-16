@@ -122,8 +122,11 @@
       const finalTourId = finalResult.tourId;
       if (status) {
         status.textContent = 'Tour saved! ID: ' + finalTourId;
-        setTimeout(() => { status.textContent = ''; }, 3000);
+        setTimeout(() => { status.textContent = ''; }, 5000);
       }
+
+      // Show success popup
+      showSuccessPopup(finalTourId);
 
       return finalTourId;
     } catch (error) {
@@ -181,6 +184,58 @@
       console.error('Error loading tour:', error);
       throw error;
     }
+  }
+
+  function showSuccessPopup(tourId) {
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    `;
+
+    // Create modal content
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    `;
+
+    modal.innerHTML = `
+      <h2 style="margin-top: 0; color: #333;">🎉 Tour Saved Successfully!</h2>
+      <p style="color: #666; margin: 15px 0;">Your tour has been saved to the cloud.</p>
+      <div style="background: #f0f0f0; padding: 12px; border-radius: 4px; margin: 20px 0; word-break: break-all;">
+        <strong>Tour ID:</strong> <code>${tourId}</code>
+      </div>
+      <div style="margin-top: 20px;">
+        <a href="/3dtour/viewer?id=${tourId}" style="display: inline-block; background: #007bff; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; margin-right: 10px;">View Tour</a>
+        <a href="/tours-list" style="display: inline-block; background: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none;">All Tours</a>
+      </div>
+      <button onclick="this.closest('div').parentElement.remove()" style="margin-top: 20px; padding: 8px 16px; background: #e9ecef; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Close on overlay click
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) {
+        overlay.remove();
+      }
+    });
   }
 
   global.SupabaseIntegration = {
