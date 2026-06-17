@@ -308,11 +308,21 @@
       return;
     }
     var params = this._current.view.parameters();
-    this._current.data.initialViewParameters = {
+    var sceneData = this._current.data;
+    var viewParams = {
       yaw: params.yaw,
       pitch: params.pitch,
       fov: params.fov
     };
+    sceneData.initialViewParameters = viewParams;
+
+    // Also sync the underlying tour scene object in case the preview was built from a remote copy.
+    for (var i = 0; i < this._tour.scenes.length; i++) {
+      if (this._tour.scenes[i].id === sceneData.id) {
+        this._tour.scenes[i].initialViewParameters = viewParams;
+        break;
+      }
+    }
   };
 
   TourPreview.prototype.setHotspotMode = function(mode, callback) {
