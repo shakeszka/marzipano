@@ -73,8 +73,19 @@
       if (viewOutElement) controls.registerMethod('outElement', new Marzipano.ElementPressControlMethod(viewOutElement, 'zoom', velocity, friction), true);
     }
 
+    if (autorotateToggleElement) {
+      autorotateToggleElement.addEventListener('click', function() {
+        if (autorotateToggleElement.classList.contains('enabled')) {
+          autorotateToggleElement.classList.remove('enabled');
+          stopAutorotate();
+        } else {
+          autorotateToggleElement.classList.add('enabled');
+          startAutorotate();
+        }
+      });
+    }
+
     if (settings.autorotateEnabled) {
-      var autorotateToggleElement = document.getElementById('autorotateToggle');
       if (autorotateToggleElement) {
         autorotateToggleElement.classList.add('enabled');
       }

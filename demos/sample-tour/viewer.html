@@ -12,8 +12,17 @@
       overflow: hidden;
     }
     #viewer {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100vh;
+    }
+    #titleBar,
+    #autorotateToggle,
+    #fullscreenToggle,
+    .viewControlButton {
+      z-index: 1001;
     }
     #loadStatus {
       position: absolute;
