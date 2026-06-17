@@ -5,6 +5,7 @@
   'use strict';
 
   var Marzipano = global.Marzipano;
+  var screenfull = global.screenfull;
   var viewer, scenes = [];
   var tourData = null;
   var currentScene = null;
@@ -35,6 +36,50 @@
     });
 
     return viewer;
+  }
+
+  function setupViewerUi(settings) {
+    var fullscreenToggleElement = document.getElementById('fullscreenToggle');
+    var autorotateToggleElement = document.getElementById('autorotateToggle');
+    var viewUpElement = document.getElementById('viewUp');
+    var viewDownElement = document.getElementById('viewDown');
+    var viewLeftElement = document.getElementById('viewLeft');
+    var viewRightElement = document.getElementById('viewRight');
+    var viewInElement = document.getElementById('viewIn');
+    var viewOutElement = document.getElementById('viewOut');
+
+    if (settings.fullscreenButton && screenfull && screenfull.enabled) {
+      document.body.classList.add('fullscreen-enabled');
+      fullscreenToggleElement.addEventListener('click', function() {
+        screenfull.toggle();
+      });
+      screenfull.on('change', function() {
+        fullscreenToggleElement.classList.toggle('enabled', screenfull.isFullscreen);
+      });
+    } else {
+      document.body.classList.add('fullscreen-disabled');
+    }
+
+    if (settings.viewControlButtons) {
+      document.body.classList.add('view-control-buttons');
+      var controls = viewer.controls();
+      var velocity = 0.7;
+      var friction = 3;
+      if (viewUpElement) controls.registerMethod('upElement', new Marzipano.ElementPressControlMethod(viewUpElement, 'y', -velocity, friction), true);
+      if (viewDownElement) controls.registerMethod('downElement', new Marzipano.ElementPressControlMethod(viewDownElement, 'y', velocity, friction), true);
+      if (viewLeftElement) controls.registerMethod('leftElement', new Marzipano.ElementPressControlMethod(viewLeftElement, 'x', -velocity, friction), true);
+      if (viewRightElement) controls.registerMethod('rightElement', new Marzipano.ElementPressControlMethod(viewRightElement, 'x', velocity, friction), true);
+      if (viewInElement) controls.registerMethod('inElement', new Marzipano.ElementPressControlMethod(viewInElement, 'zoom', -velocity, friction), true);
+      if (viewOutElement) controls.registerMethod('outElement', new Marzipano.ElementPressControlMethod(viewOutElement, 'zoom', velocity, friction), true);
+    }
+
+    if (settings.autorotateEnabled) {
+      var autorotateToggleElement = document.getElementById('autorotateToggle');
+      if (autorotateToggleElement) {
+        autorotateToggleElement.classList.add('enabled');
+      }
+      startAutorotate();
+    }
   }
 
   function getSceneId(sceneData) {
@@ -173,6 +218,7 @@
     if (scenes.length > 0) {
       viewer.switchScene(scenes[0]);
       currentScene = scenes[0];
+      setupViewerUi(tourData.settings || {});
       if (tourData.settings && tourData.settings.autorotateEnabled) {
         startAutorotate();
       }
