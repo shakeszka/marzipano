@@ -23,7 +23,10 @@ module.exports = async function handler(req, res) {
     }
 
     const buffer = Buffer.from(fileData, 'base64');
-    const filePath = `tours/${tourId}/${fileName}`;
+    const cleanFileName = String(fileName).replace(/^\/+/, '');
+    const filePath = cleanFileName.indexOf(`tours/${tourId}/`) === 0
+      ? cleanFileName
+      : `tours/${tourId}/${cleanFileName}`;
     
     console.log('Uploading tile:', { filePath, bufferSize: buffer.length, tourId });
 

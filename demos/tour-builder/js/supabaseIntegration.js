@@ -37,51 +37,79 @@
 
       if (status) status.textContent = 'Uploading panoramas...';
 
-      // Upload panorama tiles for each scene under tours/{tourId}/{sceneIndex}/...
+      function normalizeRemoteImageUrl(imageUrl, sceneIndex) {
+        if (!imageUrl) {
+          return `tours/${tourId}/${sceneIndex}`;
+        }
+        if (/^https?:\/\//.test(imageUrl)) {
+          var match = imageUrl.match(/\/storage\/v1\/object\/public\/panoramas\/(.+)$/);
+          if (match) {
+            imageUrl = match[1];
+          }
+        }
+        if (imageUrl.indexOf(`tours/${tourId}/`) !== 0) {
+          return `tours/${tourId}/${sceneIndex}`;
+        }
+        return imageUrl.replace(/\/+$/, '');
+      }
+
+      function getSceneUploadDir(imageUrl, sceneIndex) {
+        var normalizedUrl = normalizeRemoteImageUrl(imageUrl, sceneIndex);
+        var prefix = `tours/${tourId}/`;
+        if (normalizedUrl.indexOf(prefix) === 0) {
+          return normalizedUrl.slice(prefix.length);
+        }
+        return String(sceneIndex);
+      }
+
       console.log('Saving tour', { tourId: tourId, sceneCount: tour.scenes.length, origin: window.location.origin });
       await Promise.all(
         tour.scenes.map(async (scene, index) => {
-          if (scene.tileBlobs && Object.keys(scene.tileBlobs).length > 0) {
-            const tileKeys = Object.keys(scene.tileBlobs);
-            console.log('Uploading scene tiles', { sceneIndex: index, tileCount: tileKeys.length });
-            await Promise.all(
-              tileKeys.map(async (key) => {
-                const blob = scene.tileBlobs[key];
-                // Send scene-relative path; endpoint will prepend tours/{tourId}/
-                const sceneRelativePath = `${index}/${key}.jpg`;
-
-                return new Promise((resolve, reject) => {
-                  const reader = new FileReader();
-                  reader.onload = async () => {
-                    try {
-                      const base64 = reader.result.split(',')[1];
-                      const resp = await fetch('/api/upload', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          fileName: sceneRelativePath,
-                          fileData: base64,
-                          tourId: tourId
-                        })
-                      });
-                      const text = await resp.text();
-                      console.log('Upload response', { url: resp.url, status: resp.status, ok: resp.ok, body: text });
-                      if (!resp.ok) {
-                        throw new Error('Tile upload failed: ' + resp.status + ' ' + text);
-                      }
-                      resolve();
-                    } catch (e) {
-                      reject(e);
-                    }
-                  };
-                  reader.onerror = () => reject(new Error('Blob read failed'));
-                  reader.readAsDataURL(blob);
-                });
-              })
-            );
-          } else {
-            console.log('Skipping scene upload: no tile blobs', index);
+          const preservedSceneUrl = normalizeRemoteImageUrl(scene.imageUrl, index);
+          if (!scene.tileBlobs || Object.keys(scene.tileBlobs).length === 0) {
+            scene.imageUrl = preservedSceneUrl;
+            console.log('Skipping scene upload: no tile blobs', index, preservedSceneUrl);
+            return;
           }
+
+          scene.imageUrl = preservedSceneUrl;
+          const sceneRelativeDir = getSceneUploadDir(scene.imageUrl, index);
+          const tileKeys = Object.keys(scene.tileBlobs);
+          console.log('Uploading scene tiles', { sceneIndex: index, sceneRelativeDir: sceneRelativeDir, tileCount: tileKeys.length });
+          await Promise.all(
+            tileKeys.map(async (key) => {
+              const blob = scene.tileBlobs[key];
+              const sceneRelativePath = `${sceneRelativeDir}/${key}.jpg`;
+
+              return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                  try {
+                    const base64 = reader.result.split(',')[1];
+                    const resp = await fetch('/api/upload', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        fileName: sceneRelativePath,
+                        fileData: base64,
+                        tourId: tourId
+                      })
+                    });
+                    const text = await resp.text();
+                    console.log('Upload response', { url: resp.url, status: resp.status, ok: resp.ok, body: text });
+                    if (!resp.ok) {
+                      throw new Error('Tile upload failed: ' + resp.status + ' ' + text);
+                    }
+                    resolve();
+                  } catch (e) {
+                    reject(e);
+                  }
+                };
+                reader.onerror = () => reject(new Error('Blob read failed'));
+                reader.readAsDataURL(blob);
+              });
+            })
+          );
         })
       );
 
@@ -91,9 +119,10 @@
       const scenesWithUrls = tour.scenes.map((scene, index) => {
         const initialYaw = scene.initialViewParameters?.yaw ?? scene.initialYaw ?? 0;
         const initialPitch = scene.initialViewParameters?.pitch ?? scene.initialPitch ?? 0;
+        const imageUrl = normalizeRemoteImageUrl(scene.imageUrl, index);
         return {
           title: scene.name,
-          imageUrl: `tours/${tourId}/${index}`,
+          imageUrl: imageUrl,
           initialYaw: initialYaw,
           initialPitch: initialPitch,
           hotspots: (scene.linkHotspots || []).map(hotspot => ({
