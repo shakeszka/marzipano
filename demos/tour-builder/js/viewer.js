@@ -235,6 +235,14 @@
     }
   }
 
+  function updateSceneName(sceneData) {
+    var sceneNameElement = document.querySelector('#titleBar .sceneName');
+    if (!sceneNameElement) {
+      return;
+    }
+    sceneNameElement.textContent = sceneData.title || sceneData.name || 'Untitled Scene';
+  }
+
   function buildTourFromData(data) {
     if (!data || !data.scenes) {
       throw new Error('Invalid tour data');
@@ -243,16 +251,25 @@
     tourData = data;
     scenes = [];
 
+    // Normalize and default tour settings.
+    tourData.settings = Object.assign({
+      mouseViewMode: 'drag',
+      autorotateEnabled: false,
+      fullscreenButton: true,
+      viewControlButtons: true
+    }, tourData.settings || (tourData.tour && tourData.tour.settings) || {});
+
     // Create scenes
     data.scenes.forEach(function(sceneData, index) {
       var scene = createScene(sceneData, index);
-      scenes.push(scene);
+      scenes.push({ data: sceneData, scene: scene });
     });
 
     // Switch to first scene
     if (scenes.length > 0) {
-      viewer.switchScene(scenes[0]);
-      currentScene = scenes[0];
+      viewer.switchScene(scenes[0].scene);
+      currentScene = scenes[0].scene;
+      updateSceneName(scenes[0].data);
       setupViewerUi(tourData.settings || {});
       if (tourData.settings && tourData.settings.autorotateEnabled) {
         startAutorotate();
