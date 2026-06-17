@@ -374,6 +374,20 @@
           currentTourId = editId;
           if (tourInfo.settings) tour.settings = tourInfo.settings;
 
+          function normalizeRemoteImageUrl(imageUrl) {
+            if (!imageUrl) {
+              return null;
+            }
+            imageUrl = String(imageUrl).trim();
+            if (/^https?:\/\//.test(imageUrl)) {
+              var match = imageUrl.match(/\/storage\/v1\/object\/public\/panoramas\/(.+?)(?:\?|#|$)/);
+              if (match) {
+                return match[1].replace(/\/+$/, '');
+              }
+            }
+            return imageUrl.replace(/^\/+/, '').replace(/\/+$/, '');
+          }
+
           tour.scenes = scenes.map(function(s, idx) {
             return {
               id: s.id || 'scene-' + Math.random().toString(36).slice(2,9),
@@ -394,7 +408,7 @@
                 };
               }),
               // For remote tours we keep the image URL so TourPreview will use it
-              imageUrl: s.image_url || s.imageUrl || s.imageUrl || s.imageUrl
+              imageUrl: normalizeRemoteImageUrl(s.image_url || s.imageUrl) || (s.image_url || s.imageUrl)
             };
           });
 

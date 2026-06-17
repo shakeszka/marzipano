@@ -41,23 +41,28 @@
         if (!imageUrl) {
           return `tours/${tourId}/${sceneIndex}`;
         }
+        imageUrl = String(imageUrl).trim();
         if (/^https?:\/\//.test(imageUrl)) {
-          var match = imageUrl.match(/\/storage\/v1\/object\/public\/panoramas\/(.+)$/);
+          var match = imageUrl.match(/\/storage\/v1\/object\/public\/panoramas\/(.+?)(?:\?|#|$)/);
           if (match) {
             imageUrl = match[1];
           }
         }
-        if (imageUrl.indexOf(`tours/${tourId}/`) !== 0) {
-          return `tours/${tourId}/${sceneIndex}`;
+        imageUrl = imageUrl.replace(/^\/+/, '').replace(/\/+$/, '');
+        if (imageUrl.indexOf(`tours/${tourId}/`) === 0) {
+          return imageUrl;
         }
-        return imageUrl.replace(/\/+$/, '');
+        if (imageUrl.indexOf(`tours/${tourId}/`) > 0) {
+          return imageUrl.slice(imageUrl.indexOf(`tours/${tourId}/`));
+        }
+        return imageUrl;
       }
 
       function getSceneUploadDir(imageUrl, sceneIndex) {
         var normalizedUrl = normalizeRemoteImageUrl(imageUrl, sceneIndex);
         var prefix = `tours/${tourId}/`;
         if (normalizedUrl.indexOf(prefix) === 0) {
-          return normalizedUrl.slice(prefix.length);
+          return normalizedUrl.slice(prefix.length).replace(/^\/+/, '');
         }
         return String(sceneIndex);
       }
@@ -67,12 +72,16 @@
         tour.scenes.map(async (scene, index) => {
           const preservedSceneUrl = normalizeRemoteImageUrl(scene.imageUrl, index);
           if (!scene.tileBlobs || Object.keys(scene.tileBlobs).length === 0) {
-            scene.imageUrl = preservedSceneUrl;
+            if (preservedSceneUrl) {
+              scene.imageUrl = preservedSceneUrl;
+            }
             console.log('Skipping scene upload: no tile blobs', index, preservedSceneUrl);
             return;
           }
 
-          scene.imageUrl = preservedSceneUrl;
+          if (preservedSceneUrl) {
+            scene.imageUrl = preservedSceneUrl;
+          }
           const sceneRelativeDir = getSceneUploadDir(scene.imageUrl, index);
           const tileKeys = Object.keys(scene.tileBlobs);
           console.log('Uploading scene tiles', { sceneIndex: index, sceneRelativeDir: sceneRelativeDir, tileCount: tileKeys.length });
@@ -119,7 +128,7 @@
       const scenesWithUrls = tour.scenes.map((scene, index) => {
         const initialYaw = scene.initialViewParameters?.yaw ?? scene.initialYaw ?? 0;
         const initialPitch = scene.initialViewParameters?.pitch ?? scene.initialPitch ?? 0;
-        const imageUrl = normalizeRemoteImageUrl(scene.imageUrl, index);
+        const imageUrl = scene.imageUrl || normalizeRemoteImageUrl(scene.imageUrl, index) || `tours/${tourId}/${index}`;
         return {
           title: scene.name,
           imageUrl: imageUrl,
