@@ -140,7 +140,22 @@
   };
 
   TourPreview.prototype._createScene = function(sceneData) {
-    var source = createTileSource(sceneData);
+    var source;
+    // If the scene references a remote imageUrl (saved tour), use the same
+    // ImageUrlSource pattern as the viewer to fetch tiles from Supabase.
+    if (sceneData.imageUrl || sceneData.image_url) {
+      var imageUrl = sceneData.imageUrl || sceneData.image_url;
+      var supabaseBase = 'https://qnquicysinpybpnlqtan.supabase.co/storage/v1/object/public/panoramas/';
+      source = new Marzipano.ImageUrlSource(function(tile) {
+        if (tile.z === 0) {
+          return { url: supabaseBase + imageUrl + '/1/' + tile.face + '/0/0.jpg', rect: { x: 0, y: 0, width: 1, height: 1 / 6 } };
+        }
+        var tilePath = imageUrl + '/' + tile.z + '/' + tile.face + '/' + tile.y + '/' + tile.x + '.jpg';
+        return { url: supabaseBase + tilePath };
+      });
+    } else {
+      source = createTileSource(sceneData);
+    }
     var geometry = new Marzipano.CubeGeometry(sceneData.levels);
     var limiter = Marzipano.RectilinearView.limit.traditional(
       sceneData.faceSize,

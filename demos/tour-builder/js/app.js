@@ -355,6 +355,60 @@
 
     bindEvents();
     showScreen('welcome');
+
+    // If ?edit=<tourId> is present, load the tour from Supabase and open editor.
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var editId = params.get('edit') || params.get('tourId');
+      if (editId) {
+        showScreen('processing');
+        ui.progressLabel.textContent = 'Loading tour...';
+        SupabaseIntegration.loadTourFromSupabase(editId).then(function(data) {
+          var tourInfo = data.tour || data;
+          var scenes = data.scenes || data.scenes || [];
+          tour = new Tour(tourInfo.title || tourInfo.name || 'Imported Tour');
+          if (tourInfo.settings) tour.settings = tourInfo.settings;
+
+          tour.scenes = scenes.map(function(s, idx) {
+            return {
+              id: s.id || 'scene-' + Math.random().toString(36).slice(2,9),
+              name: s.title || s.name || ('Scene ' + (idx + 1)),
+              levels: s.levels,
+              faceSize: s.face_size || s.faceSize,
+              initialViewParameters: {
+                yaw: s.initial_yaw || s.initialYaw || s.yaw || 0,
+                pitch: s.initial_pitch || s.initialPitch || s.pitch || 0,
+                fov: s.fov || Math.PI / 2
+              },
+              linkHotspots: (s.hotspots || []).map(function(h) {
+                return {
+                  yaw: h.yaw,
+                  pitch: h.pitch,
+                  rotation: h.rotation || 0,
+                  target: h.target_scene_id || h.targetSceneId || h.target
+                };
+              }),
+              // For remote tours we keep the image URL so TourPreview will use it
+              imageUrl: s.image_url || s.imageUrl || s.imageUrl || s.imageUrl
+            };
+          });
+
+          showScreen('editor');
+          ui.tourName.value = tour.name;
+          renderSceneList();
+          if (tour.scenes.length) {
+            currentSceneId = tour.scenes[0].id;
+          }
+          refreshPreview();
+        }).catch(function(err) {
+          console.error('Load tour failed', err);
+          alert('Failed to load tour: ' + (err.message || err));
+          showScreen('welcome');
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   global.TourBuilderApp = {

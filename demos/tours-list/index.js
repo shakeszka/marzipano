@@ -74,6 +74,7 @@
         </div>
         <div class="tour-card-footer">
           <a href="/${encodeURIComponent(tour.id)}/tour" class="tour-btn tour-btn-view">👁️ View Tour</a>
+          <a href="/builder/?edit=${encodeURIComponent(tour.id)}" class="tour-btn" style="background:#ffc107;color:#111">✏️ Edit Tour</a>
         </div>
       </div>
     `).join('');
