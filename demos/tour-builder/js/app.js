@@ -398,6 +398,7 @@
           renderSceneList();
           if (tour.scenes.length) {
             currentSceneId = tour.scenes[0].id;
+            selectScene(currentSceneId);
           }
           refreshPreview();
         }).catch(function(err) {
