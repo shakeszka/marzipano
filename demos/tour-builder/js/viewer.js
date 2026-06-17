@@ -8,6 +8,7 @@
   var viewer, scenes = [];
   var tourData = null;
   var currentScene = null;
+  var autorotate = null;
 
   function setupViewer(containerId) {
     // Get container
@@ -21,13 +22,17 @@
     var viewerOpts = {
       controls: {
         mouseViewMode: 'drag',
-        autorotateEnabled: false,
         fullscreenButton: true,
         viewControlButtons: false
       }
     };
 
     viewer = new Marzipano.Viewer(container, viewerOpts);
+    autorotate = Marzipano.autorotate({
+      yawSpeed: 0.03,
+      targetPitch: 0,
+      targetFov: Math.PI / 2
+    });
 
     return viewer;
   }
@@ -118,8 +123,12 @@
       if (targetSceneId) {
         var targetScene = tourData.scenes.find(function(s) { return getSceneId(s) === targetSceneId; });
         if (targetScene && targetScene.marzipanoScene) {
+          stopAutorotate();
           viewer.switchScene(targetScene.marzipanoScene);
           currentScene = targetScene.marzipanoScene;
+          if (tourData.settings && tourData.settings.autorotateEnabled) {
+            startAutorotate();
+          }
         }
       }
     });
@@ -164,11 +173,30 @@
     if (scenes.length > 0) {
       viewer.switchScene(scenes[0]);
       currentScene = scenes[0];
+      if (tourData.settings && tourData.settings.autorotateEnabled) {
+        startAutorotate();
+      }
     }
 
     // Remove loading message
     var statusEl = document.getElementById('loadStatus');
     if (statusEl) statusEl.style.display = 'none';
+  }
+
+  function startAutorotate() {
+    if (!viewer || !autorotate) {
+      return;
+    }
+    viewer.startMovement(autorotate);
+    viewer.setIdleMovement(3000, autorotate);
+  }
+
+  function stopAutorotate() {
+    if (!viewer) {
+      return;
+    }
+    viewer.stopMovement();
+    viewer.setIdleMovement(Infinity);
   }
 
   global.DynamicTourViewer = {

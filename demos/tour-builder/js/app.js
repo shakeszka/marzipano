@@ -102,6 +102,19 @@
     ui.btnAddLink.disabled = !scene || ui.linkTarget.options.length === 0;
   }
 
+  function syncUiSettings() {
+    ui.settingAutorotate.checked = !!tour.settings.autorotateEnabled;
+    ui.settingFullscreen.checked = !!tour.settings.fullscreenButton;
+    ui.settingViewControls.checked = !!tour.settings.viewControlButtons;
+    ui.settingMouseModeInputs.forEach(function(input) {
+      var checked = input.value === tour.settings.mouseViewMode;
+      input.checked = checked;
+      if (input.parentElement) {
+        input.parentElement.classList.toggle('selected', checked);
+      }
+    });
+  }
+
   function escapeHtml(text) {
     return String(text)
       .replace(/&/g, '&amp;')
@@ -264,16 +277,29 @@
 
     ui.settingAutorotate.addEventListener('change', function() {
       tour.settings.autorotateEnabled = ui.settingAutorotate.checked;
+      refreshPreview();
     });
     ui.settingFullscreen.addEventListener('change', function() {
       tour.settings.fullscreenButton = ui.settingFullscreen.checked;
+      refreshPreview();
     });
     ui.settingViewControls.addEventListener('change', function() {
       tour.settings.viewControlButtons = ui.settingViewControls.checked;
-    });
-    ui.settingMouseMode.addEventListener('change', function() {
-      tour.settings.mouseViewMode = ui.settingMouseMode.value;
       refreshPreview();
+    });
+    ui.settingMouseModeInputs.forEach(function(input) {
+      input.addEventListener('change', function() {
+        if (!input.checked) return;
+        tour.settings.mouseViewMode = input.value;
+        if (input.parentElement) {
+          ui.settingMouseModeInputs.forEach(function(otherInput) {
+            if (otherInput.parentElement) {
+              otherInput.parentElement.classList.toggle('selected', otherInput.checked);
+            }
+          });
+        }
+        refreshPreview();
+      });
     });
 
     ui.btnSetView.addEventListener('click', function() {
@@ -353,10 +379,11 @@
       settingAutorotate: $('settingAutorotate'),
       settingFullscreen: $('settingFullscreen'),
       settingViewControls: $('settingViewControls'),
-      settingMouseMode: $('settingMouseMode')
+      settingMouseModeInputs: document.querySelectorAll('input[name="mouseMode"]')
     };
 
     bindEvents();
+    syncUiSettings();
     showScreen('welcome');
 
     // If ?edit=<tourId> is present, load the tour from Supabase and open editor.
@@ -372,7 +399,10 @@
           tour = new Tour(tourInfo.title || tourInfo.name || 'Imported Tour');
           tour.id = editId;
           currentTourId = editId;
-          if (tourInfo.settings) tour.settings = tourInfo.settings;
+          if (tourInfo.settings) {
+            tour.settings = Object.assign({}, tour.settings, tourInfo.settings);
+          }
+          syncUiSettings();
 
           function normalizeRemoteImageUrl(imageUrl) {
             if (!imageUrl) {

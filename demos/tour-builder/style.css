@@ -249,6 +249,43 @@ button, input, select, textarea {
   gap: 8px;
 }
 
+.mouse-mode-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.mouse-mode-label {
+  color: #b8c3d4;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.mouse-mode-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid #445268;
+  background: #1f2835;
+  cursor: pointer;
+  color: #eef2f7;
+  font-size: 13px;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.mouse-mode-option.selected {
+  border-color: #59a8ff;
+  background: linear-gradient(135deg, #2d7dd2, #4d8ce2);
+  color: #fff;
+}
+
+.mouse-mode-option input {
+  margin: 0;
+}
+
 .scene-list {
   list-style: none;
   margin: 0;

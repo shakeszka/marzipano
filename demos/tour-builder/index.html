@@ -84,12 +84,11 @@
         <label class="checkbox"><input type="checkbox" id="settingAutorotate"> Autorotate</label>
         <label class="checkbox"><input type="checkbox" id="settingFullscreen" checked> Fullscreen button</label>
         <label class="checkbox"><input type="checkbox" id="settingViewControls"> View control buttons</label>
-        <label>Mouse mode
-          <select id="settingMouseMode">
-            <option value="drag">Drag</option>
-            <option value="qtvr">QTVR</option>
-          </select>
-        </label>
+        <div class="mouse-mode-group">
+          <div class="mouse-mode-label">Mouse mode</div>
+          <label class="mouse-mode-option"><input type="radio" name="mouseMode" value="drag" checked> Drag</label>
+          <label class="mouse-mode-option"><input type="radio" name="mouseMode" value="qtvr"> QTVR</label>
+        </div>
       </section>
     </aside>
   </div>

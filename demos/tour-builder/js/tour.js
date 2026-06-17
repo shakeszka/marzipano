@@ -126,6 +126,7 @@
     this._hotspotMode = null;
     this._hotspotClickHandler = null;
     this._sceneSwitchHandler = null;
+    this._autorotate = null;
   }
 
   TourPreview.prototype.init = function() {
@@ -135,11 +136,19 @@
 
     var viewerOpts = {
       controls: {
-        mouseViewMode: this._tour.settings.mouseViewMode
+        mouseViewMode: this._tour.settings.mouseViewMode,
+        fullscreenButton: this._tour.settings.fullscreenButton,
+        viewControlButtons: this._tour.settings.viewControlButtons
       }
     };
 
     this._viewer = new Marzipano.Viewer(this._container, viewerOpts);
+    this._autorotate = Marzipano.autorotate({
+      yawSpeed: 0.03,
+      targetPitch: 0,
+      targetFov: Math.PI / 2
+    });
+
     this._scenes = this._tour.scenes.map(function(sceneData) {
       return this._createScene(sceneData);
     }, this);
@@ -281,6 +290,7 @@
   };
 
   TourPreview.prototype.switchScene = function(id) {
+    this.stopAutorotate();
     var entry = this._scenes.filter(function(s) { return s.data.id === id; })[0];
     if (!entry) {
       var sceneData = this._tour.getScene(id);
@@ -296,11 +306,30 @@
     if (this._sceneSwitchHandler) {
       this._sceneSwitchHandler(id);
     }
+    if (this._tour.settings.autorotateEnabled) {
+      this.startAutorotate();
+    }
     return entry;
   };
 
   TourPreview.prototype.getCurrentScene = function() {
     return this._current;
+  };
+
+  TourPreview.prototype.startAutorotate = function() {
+    if (!this._viewer || !this._autorotate) {
+      return;
+    }
+    this._viewer.startMovement(this._autorotate);
+    this._viewer.setIdleMovement(3000, this._autorotate);
+  };
+
+  TourPreview.prototype.stopAutorotate = function() {
+    if (!this._viewer) {
+      return;
+    }
+    this._viewer.stopMovement();
+    this._viewer.setIdleMovement(Infinity);
   };
 
   TourPreview.prototype.setInitialViewFromCurrent = function() {
