@@ -7,6 +7,7 @@
   var tour = new Tour('My Virtual Tour');
   var preview = null;
   var currentSceneId = null;
+  var currentTourId = null;
   var hotspotMode = null;
   var actionMessageTimeout = null;
 
@@ -318,7 +319,9 @@
     ui.btnSave.addEventListener('click', function() {
       ui.btnSave.disabled = true;
       ui.btnSave.textContent = 'Saving…';
-      SupabaseIntegration.saveTourToSupabase(tour, preview).then(function(tourId) {
+      SupabaseIntegration.saveTourToSupabase(tour, preview, currentTourId).then(function(tourId) {
+        currentTourId = tourId;
+        tour.id = tourId;
         ui.btnSave.disabled = false;
         ui.btnSave.textContent = 'Save to cloud';
       }).catch(function(err) {
@@ -367,6 +370,8 @@
           var tourInfo = data.tour || data;
           var scenes = data.scenes || data.scenes || [];
           tour = new Tour(tourInfo.title || tourInfo.name || 'Imported Tour');
+          tour.id = editId;
+          currentTourId = editId;
           if (tourInfo.settings) tour.settings = tourInfo.settings;
 
           tour.scenes = scenes.map(function(s, idx) {

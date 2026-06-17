@@ -51,6 +51,95 @@ module.exports = async function handler(req, res) {
       console.error('Error fetching tour:', error);
       res.status(500).json({ error: error.message });
     }
+  } else if (req.method === 'PUT') {
+    try {
+      const { title, description, scenes } = req.body;
+
+      const { error: updateTourError } = await supabase
+        .from('tours')
+        .update({ title, description })
+        .eq('id', id);
+
+      if (updateTourError) throw updateTourError;
+
+      // Delete existing scenes and hotspots for the tour first.
+      const { data: existingScenes, error: existingScenesError } = await supabase
+        .from('scenes')
+        .select('id')
+        .eq('tour_id', id);
+
+      if (existingScenesError) throw existingScenesError;
+
+      const sceneIds = existingScenes.map(function(scene) { return scene.id; });
+      if (sceneIds.length) {
+        const { error: deleteHotspotsError } = await supabase
+          .from('hotspots')
+          .delete()
+          .in('scene_id', sceneIds);
+
+        if (deleteHotspotsError) throw deleteHotspotsError;
+
+        const { error: deleteScenesError } = await supabase
+          .from('scenes')
+          .delete()
+          .in('id', sceneIds);
+
+        if (deleteScenesError) throw deleteScenesError;
+      }
+
+      const savedScenes = [];
+
+      for (let i = 0; i < scenes.length; i++) {
+        const scene = scenes[i];
+        const { data: sceneData, error: sceneError } = await supabase
+          .from('scenes')
+          .insert([{
+            tour_id: id,
+            title: scene.title,
+            image_url: scene.imageUrl,
+            order_index: i,
+            yaw: scene.initialYaw || 0,
+            pitch: scene.initialPitch || 0
+          }])
+          .select()
+          .single();
+
+        if (sceneError) throw sceneError;
+
+        savedScenes.push(sceneData);
+      }
+
+      for (let i = 0; i < scenes.length; i++) {
+        const scene = scenes[i];
+        if (!scene.hotspots || scene.hotspots.length === 0) {
+          continue;
+        }
+
+        for (const hotspot of scene.hotspots) {
+          const targetScene = hotspot.targetSceneIndex !== undefined
+            ? savedScenes[hotspot.targetSceneIndex]
+            : null;
+
+          const { error: hotspotError } = await supabase
+            .from('hotspots')
+            .insert([{
+              scene_id: savedScenes[i].id,
+              target_scene_id: targetScene ? targetScene.id : null,
+              title: hotspot.title,
+              yaw: hotspot.yaw,
+              pitch: hotspot.pitch,
+              hotspot_type: hotspot.type || 'link'
+            }]);
+
+          if (hotspotError) throw hotspotError;
+        }
+      }
+
+      res.status(200).json({ tourId: id, message: 'Tour updated successfully' });
+    } catch (error) {
+      console.error('Error updating tour:', error);
+      res.status(500).json({ error: error.message });
+    }
   } else {
     res.status(405).json({ error: 'Method not allowed' });
   }

@@ -4,33 +4,37 @@
 (function(global) {
   'use strict';
 
-  async function saveTourToSupabase(tour, preview) {
+  async function saveTourToSupabase(tour, preview, existingTourId) {
     try {
       const status = document.getElementById('saveStatus');
       if (status) status.textContent = 'Saving tour to cloud...';
 
-      // First, create a temporary tour to get tourId
-      const tempTourResponse = await fetch('/api/tours', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: tour.name,
-          description: 'Built with Tour Builder',
-          scenes: [],
-          isPublic: false
-        })
-      });
+      var tourId = existingTourId;
+      if (!tourId) {
+        // Create a new tour record first to get a tourId.
+        const tempTourResponse = await fetch('/api/tours', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: tour.name,
+            description: 'Built with Tour Builder',
+            scenes: [],
+            isPublic: false
+          })
+        });
 
-      let tempResult = {};
-      try {
-        tempResult = await tempTourResponse.json();
-      } catch (e) {}
+        let tempResult = {};
+        try {
+          tempResult = await tempTourResponse.json();
+        } catch (e) {}
 
-      if (!tempTourResponse.ok) {
-        throw new Error('HTTP ' + tempTourResponse.status + ': Failed to create tour');
+        if (!tempTourResponse.ok) {
+          throw new Error('HTTP ' + tempTourResponse.status + ': Failed to create tour');
+        }
+
+        tourId = tempResult.tourId;
       }
 
-      const tourId = tempResult.tourId;
       if (status) status.textContent = 'Uploading panoramas...';
 
       // Upload panorama tiles for each scene under tours/{tourId}/{sceneIndex}/...
@@ -102,9 +106,9 @@
         };
       });
 
-      // Save the full tour with scene data
-      const finalResponse = await fetch('/api/tours', {
-        method: 'POST',
+      // Save the full tour with scene data to the existing or newly created tour record.
+      const finalResponse = await fetch('/api/tours/' + tourId, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: tour.name,
