@@ -10,6 +10,7 @@
   var tourData = null;
   var currentScene = null;
   var autorotate = null;
+  var uiInitialized = false;
 
   function setupViewer(containerId) {
     // Get container
@@ -57,12 +58,20 @@
     if (settings.fullscreenButton && screenfull && screenfull.enabled) {
       document.body.classList.add('fullscreen-enabled');
       document.body.classList.remove('fullscreen-disabled');
-      fullscreenToggleElement.addEventListener('click', function() {
-        screenfull.toggle();
-      });
-      screenfull.on('change', function() {
-        fullscreenToggleElement.classList.toggle('enabled', screenfull.isFullscreen);
-      });
+      if (fullscreenToggleElement && !fullscreenToggleElement._fullscreenHandlerAttached) {
+        fullscreenToggleElement.addEventListener('click', function() {
+          screenfull.toggle();
+        });
+        fullscreenToggleElement._fullscreenHandlerAttached = true;
+      }
+      if (screenfull && !screenfull._changeHandlerAttached) {
+        screenfull.on('change', function() {
+          if (fullscreenToggleElement) {
+            fullscreenToggleElement.classList.toggle('enabled', screenfull.isFullscreen);
+          }
+        });
+        screenfull._changeHandlerAttached = true;
+      }
     } else {
       document.body.classList.add('fullscreen-disabled');
       document.body.classList.remove('fullscreen-enabled');
@@ -70,18 +79,20 @@
 
     if (settings.viewControlButtons) {
       document.body.classList.add('view-control-buttons');
-      var controls = viewer.controls();
-      var velocity = 0.7;
-      var friction = 3;
-      if (viewUpElement) controls.registerMethod('upElement', new Marzipano.ElementPressControlMethod(viewUpElement, 'y', -velocity, friction), true);
-      if (viewDownElement) controls.registerMethod('downElement', new Marzipano.ElementPressControlMethod(viewDownElement, 'y', velocity, friction), true);
-      if (viewLeftElement) controls.registerMethod('leftElement', new Marzipano.ElementPressControlMethod(viewLeftElement, 'x', -velocity, friction), true);
-      if (viewRightElement) controls.registerMethod('rightElement', new Marzipano.ElementPressControlMethod(viewRightElement, 'x', velocity, friction), true);
-      if (viewInElement) controls.registerMethod('inElement', new Marzipano.ElementPressControlMethod(viewInElement, 'zoom', -velocity, friction), true);
-      if (viewOutElement) controls.registerMethod('outElement', new Marzipano.ElementPressControlMethod(viewOutElement, 'zoom', velocity, friction), true);
+      if (!uiInitialized) {
+        var controls = viewer.controls();
+        var velocity = 0.7;
+        var friction = 3;
+        if (viewUpElement) controls.registerMethod('upElement', new Marzipano.ElementPressControlMethod(viewUpElement, 'y', -velocity, friction), true);
+        if (viewDownElement) controls.registerMethod('downElement', new Marzipano.ElementPressControlMethod(viewDownElement, 'y', velocity, friction), true);
+        if (viewLeftElement) controls.registerMethod('leftElement', new Marzipano.ElementPressControlMethod(viewLeftElement, 'x', -velocity, friction), true);
+        if (viewRightElement) controls.registerMethod('rightElement', new Marzipano.ElementPressControlMethod(viewRightElement, 'x', velocity, friction), true);
+        if (viewInElement) controls.registerMethod('inElement', new Marzipano.ElementPressControlMethod(viewInElement, 'zoom', -velocity, friction), true);
+        if (viewOutElement) controls.registerMethod('outElement', new Marzipano.ElementPressControlMethod(viewOutElement, 'zoom', velocity, friction), true);
+      }
     }
 
-    if (autorotateToggleElement) {
+    if (autorotateToggleElement && !autorotateToggleElement._autorotateHandlerAttached) {
       autorotateToggleElement.addEventListener('click', function() {
         if (autorotateToggleElement.classList.contains('enabled')) {
           autorotateToggleElement.classList.remove('enabled');
@@ -91,6 +102,7 @@
           startAutorotate();
         }
       });
+      autorotateToggleElement._autorotateHandlerAttached = true;
     }
 
     if (settings.autorotateEnabled) {
@@ -98,6 +110,10 @@
         autorotateToggleElement.classList.add('enabled');
       }
       startAutorotate();
+    }
+
+    if (!uiInitialized) {
+      uiInitialized = true;
     }
   }
 
