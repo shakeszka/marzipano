@@ -6,6 +6,16 @@
 
   var FACE_ORDER = 'bdflru';
 
+  function buildDefaultLevels() {
+    return [
+      { tileSize: 256, size: 256, fallbackOnly: true },
+      { tileSize: 512, size: 512 },
+      { tileSize: 512, size: 1024 },
+      { tileSize: 512, size: 2048 },
+      { tileSize: 512, size: 4096 }
+    ];
+  }
+
   function Tour(name) {
     this.name = name || 'Untitled Tour';
     this.settings = {
@@ -148,7 +158,7 @@
       var supabaseBase = 'https://qnquicysinpybpnlqtan.supabase.co/storage/v1/object/public/panoramas/';
       source = new Marzipano.ImageUrlSource(function(tile) {
         if (tile.z === 0) {
-          return { url: supabaseBase + imageUrl + '/1/' + tile.face + '/0/0.jpg', rect: { x: 0, y: 0, width: 1, height: 1 / 6 } };
+          return { url: supabaseBase + imageUrl + '/1/' + tile.face + '/0/0.jpg' };
         }
         var tilePath = imageUrl + '/' + tile.z + '/' + tile.face + '/' + tile.y + '/' + tile.x + '.jpg';
         return { url: supabaseBase + tilePath };
@@ -156,9 +166,13 @@
     } else {
       source = createTileSource(sceneData);
     }
-    var geometry = new Marzipano.CubeGeometry(sceneData.levels);
+
+    // Ensure levels and faceSize have sensible defaults so CubeGeometry doesn't throw
+    var levels = Array.isArray(sceneData.levels) ? sceneData.levels : buildDefaultLevels();
+    var faceSize = sceneData.faceSize || sceneData.face_size || (levels[levels.length - 1] && levels[levels.length - 1].size) || 4096;
+    var geometry = new Marzipano.CubeGeometry(levels);
     var limiter = Marzipano.RectilinearView.limit.traditional(
-      sceneData.faceSize,
+      faceSize,
       100 * Math.PI / 180,
       120 * Math.PI / 180
     );
