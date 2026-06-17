@@ -316,7 +316,8 @@
     };
     sceneData.initialViewParameters = viewParams;
 
-    // Also sync the underlying tour scene object in case the preview was built from a remote copy.
+    // Also update the current view immediately and sync the underlying tour scene.
+    this._current.view.setParameters(viewParams);
     for (var i = 0; i < this._tour.scenes.length; i++) {
       if (this._tour.scenes[i].id === sceneData.id) {
         this._tour.scenes[i].initialViewParameters = viewParams;
