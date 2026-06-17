@@ -99,12 +99,12 @@
   }
 
   function addHotspot(scene, hotspotData, currentSceneId) {
-    // Create hotspot element
+    // Create hotspot element that matches builder hotspot styling
     var element = document.createElement('div');
-    element.className = 'hotspot hotspot-link';
+    element.className = 'hotspot link-hotspot';
     element.innerHTML =
-      '<div class="hotspot-icon"></div>' +
-      '<div class="hotspot-title">' + (hotspotData.title || 'Link') + '</div>';
+      '<div class="link-hotspot-icon"></div>' +
+      '<div class="link-hotspot-title">' + (hotspotData.title || 'Link') + '</div>';
 
     // Convert yaw/pitch to coords
     var coords = {
