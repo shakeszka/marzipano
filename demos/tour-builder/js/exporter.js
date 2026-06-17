@@ -84,7 +84,7 @@
   });
 
   var autorotate = Marzipano.autorotate({
-    yawSpeed: 0.05,
+    yawSpeed: 0.8,
     targetPitch: 0,
     targetFov: Math.PI / 2
   });

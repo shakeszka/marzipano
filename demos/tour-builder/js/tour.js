@@ -22,7 +22,7 @@
       mouseViewMode: 'drag',
       autorotateEnabled: false,
       fullscreenButton: true,
-      viewControlButtons: false
+      viewControlButtons: true
     };
     this.scenes = [];
     this._objectUrls = [];
@@ -144,7 +144,7 @@
 
     this._viewer = new Marzipano.Viewer(this._container, viewerOpts);
     this._autorotate = Marzipano.autorotate({
-      yawSpeed: 0.05,
+      yawSpeed: 0.8,
       targetPitch: 0,
       targetFov: Math.PI / 2
     });
