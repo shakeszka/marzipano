@@ -46,7 +46,7 @@ module.exports = async function handler(req, res) {
         })
       );
 
-      res.status(200).json({ tour, scenes: scenesWithHotspots });
+      res.status(200).json({ tour, scenes: scenesWithHotspots, settings: tour.settings || {} });
     } catch (error) {
       console.error('Error fetching tour:', error);
       res.status(500).json({ error: error.message });
