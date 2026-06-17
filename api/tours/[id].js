@@ -54,6 +54,8 @@ module.exports = async function handler(req, res) {
   } else if (req.method === 'PUT') {
     try {
       const { title, description, scenes, settings } = req.body;
+      console.log('PUT /api/tours/' + id, { title, description, scenesCount: scenes?.length, hasSettings: settings !== undefined });
+      
       const updateFields = { title, description };
       if (settings !== undefined) {
         updateFields.settings = settings;
@@ -64,7 +66,10 @@ module.exports = async function handler(req, res) {
         .update(updateFields)
         .eq('id', id);
 
-      if (updateTourError) throw updateTourError;
+      if (updateTourError) {
+        console.error('Tour update error:', updateTourError);
+        throw updateTourError;
+      }
 
       // Delete existing scenes and hotspots for the tour first.
       const { data: existingScenes, error: existingScenesError } = await supabase
@@ -95,20 +100,26 @@ module.exports = async function handler(req, res) {
 
       for (let i = 0; i < scenes.length; i++) {
         const scene = scenes[i];
+        const sceneInsert = {
+          tour_id: id,
+          title: scene.title,
+          image_url: scene.imageUrl,
+          order_index: i,
+          yaw: scene.initialYaw || 0,
+          pitch: scene.initialPitch || 0
+        };
+        console.log('Inserting scene ' + i + ':', sceneInsert);
+        
         const { data: sceneData, error: sceneError } = await supabase
           .from('scenes')
-          .insert([{
-            tour_id: id,
-            title: scene.title,
-            image_url: scene.imageUrl,
-            order_index: i,
-            yaw: scene.initialYaw || 0,
-            pitch: scene.initialPitch || 0
-          }])
+          .insert([sceneInsert])
           .select()
           .single();
 
-        if (sceneError) throw sceneError;
+        if (sceneError) {
+          console.error('Scene insert error at index ' + i + ':', sceneError);
+          throw sceneError;
+        }
 
         savedScenes.push(sceneData);
       }
