@@ -315,6 +315,8 @@
       fov: params.fov
     };
     sceneData.initialViewParameters = viewParams;
+    sceneData.initialYaw = viewParams.yaw;
+    sceneData.initialPitch = viewParams.pitch;
 
     // Also update the current view immediately and sync the underlying tour scene.
     this._current.view.setParameters(viewParams);
@@ -322,6 +324,8 @@
     for (var i = 0; i < this._tour.scenes.length; i++) {
       if (this._tour.scenes[i].id === sceneData.id) {
         this._tour.scenes[i].initialViewParameters = viewParams;
+        this._tour.scenes[i].initialYaw = viewParams.yaw;
+        this._tour.scenes[i].initialPitch = viewParams.pitch;
         break;
       }
     }

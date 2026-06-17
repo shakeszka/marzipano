@@ -84,19 +84,23 @@
       if (status) status.textContent = 'Finalizing tour...';
 
       // Prepare scenes with shared base URL
-      const scenesWithUrls = tour.scenes.map((scene, index) => ({
-        title: scene.name,
-        imageUrl: `tours/${tourId}/${index}`,
-        initialYaw: scene.initialViewParameters ? scene.initialViewParameters.yaw : 0,
-        initialPitch: scene.initialViewParameters ? scene.initialViewParameters.pitch : 0,
-        hotspots: (scene.linkHotspots || []).map(hotspot => ({
-          title: tour.getScene(hotspot.target)?.name || 'Untitled',
-          yaw: hotspot.yaw,
-          pitch: hotspot.pitch,
-          type: 'link',
-          targetSceneIndex: tour.scenes.findIndex(s => s.id === hotspot.target)
-        }))
-      }));
+      const scenesWithUrls = tour.scenes.map((scene, index) => {
+        const initialYaw = scene.initialViewParameters?.yaw ?? scene.initialYaw ?? 0;
+        const initialPitch = scene.initialViewParameters?.pitch ?? scene.initialPitch ?? 0;
+        return {
+          title: scene.name,
+          imageUrl: `tours/${tourId}/${index}`,
+          initialYaw: initialYaw,
+          initialPitch: initialPitch,
+          hotspots: (scene.linkHotspots || []).map(hotspot => ({
+            title: tour.getScene(hotspot.target)?.name || 'Untitled',
+            yaw: hotspot.yaw,
+            pitch: hotspot.pitch,
+            type: 'link',
+            targetSceneIndex: tour.scenes.findIndex(s => s.id === hotspot.target)
+          }))
+        };
+      });
 
       // Save the full tour with scene data
       const finalResponse = await fetch('/api/tours', {
