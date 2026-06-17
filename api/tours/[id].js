@@ -56,10 +56,8 @@ module.exports = async function handler(req, res) {
       const { title, description, scenes, settings } = req.body;
       console.log('PUT /api/tours/' + id, { title, description, scenesCount: scenes?.length, hasSettings: settings !== undefined });
       
+      // Only update title and description - settings column may not exist yet
       const updateFields = { title, description };
-      if (settings !== undefined) {
-        updateFields.settings = settings;
-      }
 
       const { error: updateTourError } = await supabase
         .from('tours')
@@ -69,6 +67,22 @@ module.exports = async function handler(req, res) {
       if (updateTourError) {
         console.error('Tour update error:', updateTourError);
         throw updateTourError;
+      }
+      
+      // Try to update settings if the column exists (migration 002 applied)
+      if (settings !== undefined) {
+        const { error: settingsError } = await supabase
+          .from('tours')
+          .update({ settings })
+          .eq('id', id);
+        
+        if (settingsError && settingsError.code !== 'PGRST204') {
+          console.error('Settings update error:', settingsError);
+        } else if (!settingsError) {
+          console.log('Settings updated successfully');
+        } else {
+          console.log('Settings column not in schema yet (migration not applied), skipping');
+        }
       }
 
       // Delete existing scenes and hotspots for the tour first.
