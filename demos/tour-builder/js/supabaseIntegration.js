@@ -153,8 +153,15 @@
           title: tour.name,
           description: 'Built with Tour Builder',
           scenes: scenesWithUrls,
-            isPublic: false,
-            settings: tour.settings
+          isPublic: false,
+          settings: tour.settings
+        })
+      });
+
+      let finalResult = {};
+      try {
+        finalResult = await finalResponse.json();
+      } catch (e) {}
 
       if (!finalResponse.ok) {
         throw new Error('HTTP ' + finalResponse.status + ': Failed to save tour');
