@@ -17,12 +17,39 @@
       left: 0;
       width: 100%;
       height: 100vh;
+      z-index: 0;
     }
-    #titleBar,
+    #titleBar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 40px;
+      height: 40px;
+      z-index: 1001;
+    }
     #autorotateToggle,
     #fullscreenToggle,
     .viewControlButton {
+      position: absolute;
       z-index: 1001;
+    }
+    #fullscreenToggle {
+      display: block;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 40px;
+      padding: 5px;
+      background-color: rgba(103,115,131,0.8);
+    }
+    #autorotateToggle {
+      display: block;
+      top: 0;
+      right: 40px;
+      width: 40px;
+      height: 40px;
+      padding: 5px;
+      background-color: rgba(103,115,131,0.8);
     }
     #loadStatus {
       position: absolute;
@@ -34,7 +61,7 @@
       padding: 20px 40px;
       border-radius: 8px;
       font-size: 16px;
-      z-index: 1000;
+      z-index: 1002;
     }
     .hotspot {
       cursor: pointer;
@@ -110,9 +137,6 @@
   </style>
 </head>
 <body>
-  <div id="viewer"></div>
-  <div id="loadStatus">Loading tour...</div>
-
   <div id="titleBar"><h1 class="sceneName"></h1></div>
   <a href="javascript:void(0)" id="autorotateToggle">
     <img class="icon off" src="/demos/sample-tour/img/play.png">
@@ -122,6 +146,30 @@
     <img class="icon off" src="/demos/sample-tour/img/fullscreen.png">
     <img class="icon on" src="/demos/sample-tour/img/windowed.png">
   </a>
+  <a href="javascript:void(0)" id="viewUp" class="viewControlButton viewControlButton-1">
+    <img class="icon" src="/demos/sample-tour/img/up.png">
+  </a>
+  <a href="javascript:void(0)" id="viewDown" class="viewControlButton viewControlButton-2">
+    <img class="icon" src="/demos/sample-tour/img/down.png">
+  </a>
+  <a href="javascript:void(0)" id="viewLeft" class="viewControlButton viewControlButton-3">
+    <img class="icon" src="/demos/sample-tour/img/left.png">
+  </a>
+  <a href="javascript:void(0)" id="viewRight" class="viewControlButton viewControlButton-4">
+    <img class="icon" src="/demos/sample-tour/img/right.png">
+  </a>
+  <a href="javascript:void(0)" id="viewIn" class="viewControlButton viewControlButton-5">
+    <img class="icon" src="/demos/sample-tour/img/plus.png">
+  </a>
+  <a href="javascript:void(0)" id="viewOut" class="viewControlButton viewControlButton-6">
+    <img class="icon" src="/demos/sample-tour/img/minus.png">
+  </a>
+  <div id="viewer"></div>
+  <div id="loadStatus">Loading tour...</div>
+
+  <script src="//www.marzipano.net/demos/common/screenfull.js"></script>
+  <script src="/build/marzipano.js"></script>
+  <script src="/builder/js/viewer.js"></script>
   <a href="javascript:void(0)" id="viewUp" class="viewControlButton viewControlButton-1">
     <img class="icon" src="/demos/sample-tour/img/up.png">
   </a>

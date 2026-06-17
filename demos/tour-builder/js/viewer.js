@@ -35,6 +35,12 @@
       targetFov: Math.PI / 2
     });
 
+    setupViewerUi({
+      fullscreenButton: true,
+      viewControlButtons: true,
+      autorotateEnabled: false
+    });
+
     return viewer;
   }
 
@@ -50,6 +56,7 @@
 
     if (settings.fullscreenButton && screenfull && screenfull.enabled) {
       document.body.classList.add('fullscreen-enabled');
+      document.body.classList.remove('fullscreen-disabled');
       fullscreenToggleElement.addEventListener('click', function() {
         screenfull.toggle();
       });
@@ -58,6 +65,7 @@
       });
     } else {
       document.body.classList.add('fullscreen-disabled');
+      document.body.classList.remove('fullscreen-enabled');
     }
 
     if (settings.viewControlButtons) {
