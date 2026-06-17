@@ -16,11 +16,11 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { title, description, scenes, isPublic } = req.body;
+    const { title, description, scenes, isPublic, settings } = req.body;
 
     const { data: tourData, error: tourError } = await supabase
       .from('tours')
-      .insert([{ title, description, is_public: isPublic }])
+      .insert([{ title, description, is_public: isPublic, settings }])
       .select()
       .single();
 

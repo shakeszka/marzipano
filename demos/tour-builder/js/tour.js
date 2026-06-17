@@ -144,7 +144,7 @@
 
     this._viewer = new Marzipano.Viewer(this._container, viewerOpts);
     this._autorotate = Marzipano.autorotate({
-      yawSpeed: 0.03,
+      yawSpeed: 0.05,
       targetPitch: 0,
       targetFov: Math.PI / 2
     });

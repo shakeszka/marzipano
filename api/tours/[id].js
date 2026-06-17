@@ -53,11 +53,15 @@ module.exports = async function handler(req, res) {
     }
   } else if (req.method === 'PUT') {
     try {
-      const { title, description, scenes } = req.body;
+      const { title, description, scenes, settings } = req.body;
+      const updateFields = { title, description };
+      if (settings !== undefined) {
+        updateFields.settings = settings;
+      }
 
       const { error: updateTourError } = await supabase
         .from('tours')
-        .update({ title, description })
+        .update(updateFields)
         .eq('id', id);
 
       if (updateTourError) throw updateTourError;

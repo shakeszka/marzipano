@@ -19,7 +19,8 @@
             title: tour.name,
             description: 'Built with Tour Builder',
             scenes: [],
-            isPublic: false
+            isPublic: false,
+            settings: tour.settings
           })
         });
 
@@ -152,14 +153,8 @@
           title: tour.name,
           description: 'Built with Tour Builder',
           scenes: scenesWithUrls,
-          isPublic: false
-        })
-      });
-
-      let finalResult = {};
-      try {
-        finalResult = await finalResponse.json();
-      } catch (e) {}
+            isPublic: false,
+            settings: tour.settings
 
       if (!finalResponse.ok) {
         throw new Error('HTTP ' + finalResponse.status + ': Failed to save tour');
