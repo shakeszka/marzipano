@@ -115,12 +115,16 @@
         for (var i = 0; i < btns.length; i++) {
           btns[i].style.backgroundColor = alphaColor;
         }
-        // Also apply to other toggle buttons
+        // Also apply to other toggle buttons and title/scene list styling
         var toggles = ['fullscreenToggle', 'autorotateToggle', 'sceneListToggle'];
         for (var j = 0; j < toggles.length; j++) {
           var el = document.getElementById(toggles[j]);
           if (el) el.style.backgroundColor = alphaColor;
         }
+        var titleNameEl = document.querySelector('#titleBar .sceneName');
+        if (titleNameEl) titleNameEl.style.backgroundColor = alphaColor;
+        var sceneListContainer = document.querySelector('#sceneList .scenes');
+        if (sceneListContainer) sceneListContainer.style.backgroundColor = alphaColor;
       } else {
         // Reset inline background color when no custom color is selected.
         var btns = document.querySelectorAll('.viewControlButton');
@@ -132,6 +136,10 @@
           var elReset = document.getElementById(resetToggles[l]);
           if (elReset) elReset.style.backgroundColor = '';
         }
+        var titleNameEl = document.querySelector('#titleBar .sceneName');
+        if (titleNameEl) titleNameEl.style.backgroundColor = '';
+        var sceneListContainer = document.querySelector('#sceneList .scenes');
+        if (sceneListContainer) sceneListContainer.style.backgroundColor = '';
       }
     }
 
