@@ -168,6 +168,7 @@ var data = {
     "mouseViewMode": "drag",
     "autorotateEnabled": true,
     "fullscreenButton": true,
-    "viewControlButtons": true
+    "viewControlButtons": true,
+    "controlButtonColor": "rgba(103,115,131,0.8)"
   }
 };

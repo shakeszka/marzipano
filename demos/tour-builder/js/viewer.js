@@ -263,14 +263,39 @@
       mouseViewMode: 'drag',
       autorotateEnabled: false,
       fullscreenButton: true,
-      viewControlButtons: true
+      viewControlButtons: true,
+      controlButtonColor: null
     }, tourData.settings || (tourData.tour && tourData.tour.settings) || {});
 
     var statusEl = document.getElementById('loadStatus');
 
+    // Add body class depending on number of scenes so CSS shows scene list toggle
+    if (Array.isArray(data.scenes) && data.scenes.length > 1) {
+      document.body.classList.add('multiple-scenes');
+      document.body.classList.remove('single-scene');
+    } else {
+      document.body.classList.add('single-scene');
+      document.body.classList.remove('multiple-scenes');
+    }
+
     // Build scene list UI (if present in the page)
     var sceneListEl = document.getElementById('sceneList');
     var sceneListToggleEl = document.getElementById('sceneListToggle');
+    // If toggle button missing from the page, create it with expand/collapse icons.
+    if (!sceneListToggleEl) {
+      sceneListToggleEl = document.createElement('a');
+      sceneListToggleEl.href = 'javascript:void(0)';
+      sceneListToggleEl.id = 'sceneListToggle';
+      var imgOff = document.createElement('img');
+      imgOff.className = 'icon off';
+      imgOff.src = '/demos/sample-tour/img/expand.png';
+      var imgOn = document.createElement('img');
+      imgOn.className = 'icon on';
+      imgOn.src = '/demos/sample-tour/img/collapse.png';
+      sceneListToggleEl.appendChild(imgOff);
+      sceneListToggleEl.appendChild(imgOn);
+      document.body.appendChild(sceneListToggleEl);
+    }
     if (sceneListEl && Array.isArray(data.scenes)) {
       var ul = document.createElement('ul');
       ul.className = 'scenes';
