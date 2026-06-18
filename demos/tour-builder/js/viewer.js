@@ -11,6 +11,7 @@
   var currentScene = null;
   var autorotate = null;
   var uiInitialized = false;
+  var sceneListHighlightColor = '';
 
   function setupViewer(containerId) {
     // Get container
@@ -63,6 +64,16 @@
     return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
   }
 
+  function updateSceneListCurrentHighlight() {
+    if (!sceneListHighlightColor) {
+      return;
+    }
+    var currentItems = document.querySelectorAll('#sceneList .scene.current');
+    for (var i = 0; i < currentItems.length; i++) {
+      currentItems[i].style.backgroundColor = sceneListHighlightColor;
+    }
+  }
+
   function setupViewerUi(settings) {
     var fullscreenToggleElement = document.getElementById('fullscreenToggle');
     var autorotateToggleElement = document.getElementById('autorotateToggle');
@@ -111,6 +122,8 @@
       // Apply custom control button color if provided in settings
       if (settings.controlButtonColor) {
         var alphaColor = hexToRgba(settings.controlButtonColor, 0.55);
+        var accentColor = hexToRgba(settings.controlButtonColor, 0.85);
+        sceneListHighlightColor = accentColor;
         var btns = document.querySelectorAll('.viewControlButton');
         for (var i = 0; i < btns.length; i++) {
           btns[i].style.backgroundColor = alphaColor;
@@ -125,7 +138,9 @@
         if (titleNameEl) titleNameEl.style.backgroundColor = alphaColor;
         var sceneListContainer = document.querySelector('#sceneList .scenes');
         if (sceneListContainer) sceneListContainer.style.backgroundColor = alphaColor;
+        updateSceneListCurrentHighlight();
       } else {
+        sceneListHighlightColor = '';
         // Reset inline background color when no custom color is selected.
         var btns = document.querySelectorAll('.viewControlButton');
         for (var k = 0; k < btns.length; k++) {
@@ -140,6 +155,10 @@
         if (titleNameEl) titleNameEl.style.backgroundColor = '';
         var sceneListContainer = document.querySelector('#sceneList .scenes');
         if (sceneListContainer) sceneListContainer.style.backgroundColor = '';
+        var currentItems = document.querySelectorAll('#sceneList .scene.current');
+        for (var m = 0; m < currentItems.length; m++) {
+          currentItems[m].style.backgroundColor = '';
+        }
       }
     }
 
