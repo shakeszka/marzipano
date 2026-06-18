@@ -193,6 +193,156 @@
         }
       });
 
+      var titleBar = document.getElementById('titleBar');
+      if (!titleBar) {
+        titleBar = document.createElement('div');
+        titleBar.id = 'titleBar';
+        titleBar.style.position = 'absolute';
+        titleBar.style.top = '0';
+        titleBar.style.left = '0';
+        titleBar.style.right = '120px';
+        titleBar.style.height = '40px';
+        titleBar.style.padding = '0 10px';
+        titleBar.style.zIndex = '1001';
+        titleBar.style.pointerEvents = 'none';
+        titleBar.style.display = 'flex';
+        titleBar.style.alignItems = 'center';
+        titleBar.style.background = 'rgba(0,0,0,0.3)';
+        titleBar.style.color = '#fff';
+        var nameEl = document.createElement('h1');
+        nameEl.className = 'sceneName';
+        nameEl.style.margin = '0';
+        nameEl.style.padding = '5px 0';
+        nameEl.style.fontSize = '16px';
+        nameEl.style.lineHeight = '30px';
+        nameEl.style.overflow = 'hidden';
+        nameEl.style.textOverflow = 'ellipsis';
+        nameEl.style.whiteSpace = 'nowrap';
+        nameEl.style.flex = '1';
+        titleBar.appendChild(nameEl);
+        parent.appendChild(titleBar);
+      }
+
+      var toggleDefs = [
+        { id: 'autorotateToggle', icons: ['play.png', 'pause.png'], position: 'right:40px;top:0;', alt: 'Autorotate' },
+        { id: 'fullscreenToggle', icons: ['fullscreen.png', 'windowed.png'], position: 'right:0;top:0;', alt: 'Fullscreen' },
+        { id: 'sceneListToggle', icons: ['expand.png', 'collapse.png'], position: 'right:80px;top:0;', alt: 'Scene list' }
+      ];
+      var toggles = {};
+      toggleDefs.forEach(function(def) {
+        var el = document.getElementById(def.id);
+        if (!el) {
+          el = document.createElement('a');
+          el.href = 'javascript:void(0)';
+          el.id = def.id;
+          el.style.position = 'absolute';
+          el.style.cssText += def.position + ' width:40px; height:40px; padding:5px; background:rgba(103,115,131,0.8); display:flex; align-items:center; justify-content:center; z-index:1001;';
+          el.style.cursor = 'pointer';
+          parent.appendChild(el);
+        }
+        if (!el.querySelector('.icon.off')) {
+          var imgOff = document.createElement('img');
+          imgOff.className = 'icon off';
+          imgOff.src = '/demos/sample-tour/img/' + def.icons[0];
+          imgOff.alt = def.alt + ' off';
+          imgOff.style.position = 'absolute';
+          imgOff.style.top = '0';
+          imgOff.style.left = '0';
+          imgOff.style.width = '100%';
+          imgOff.style.height = '100%';
+          imgOff.style.pointerEvents = 'none';
+          el.appendChild(imgOff);
+        }
+        if (!el.querySelector('.icon.on')) {
+          var imgOn = document.createElement('img');
+          imgOn.className = 'icon on';
+          imgOn.src = '/demos/sample-tour/img/' + def.icons[1];
+          imgOn.alt = def.alt + ' on';
+          imgOn.style.position = 'absolute';
+          imgOn.style.top = '0';
+          imgOn.style.left = '0';
+          imgOn.style.width = '100%';
+          imgOn.style.height = '100%';
+          imgOn.style.pointerEvents = 'none';
+          imgOn.style.display = 'none';
+          el.appendChild(imgOn);
+        }
+        toggles[def.id] = el;
+      });
+
+      function setToggleState(el, enabled) {
+        if (!el) return;
+        el.classList.toggle('enabled', enabled);
+        var iconOn = el.querySelector('.icon.on');
+        var iconOff = el.querySelector('.icon.off');
+        if (iconOn && iconOff) {
+          iconOn.style.display = enabled ? 'block' : 'none';
+          iconOff.style.display = enabled ? 'none' : 'block';
+        }
+      }
+
+      var sidebarLeft = self._container.parentNode.parentNode.querySelector('.sidebar-left');
+      var sceneListToggleElement = toggles.sceneListToggle;
+      if (sceneListToggleElement && !sceneListToggleElement._handlerAttached) {
+        sceneListToggleElement.addEventListener('click', function() {
+          if (sidebarLeft) {
+            var hidden = sidebarLeft.classList.toggle('hidden');
+            setToggleState(sceneListToggleElement, !hidden);
+          }
+          if (self._controlToggleHandler) {
+            self._controlToggleHandler('sceneListToggle', sidebarLeft && !sidebarLeft.classList.contains('hidden'));
+          }
+        });
+        sceneListToggleElement._handlerAttached = true;
+      }
+
+      var autorotateToggleElement = toggles.autorotateToggle;
+      if (autorotateToggleElement && !autorotateToggleElement._handlerAttached) {
+        autorotateToggleElement.addEventListener('click', function() {
+          var enabled = !autorotateToggleElement.classList.contains('enabled');
+          setToggleState(autorotateToggleElement, enabled);
+          self._tour.settings.autorotateEnabled = enabled;
+          if (enabled) {
+            self.startAutorotate();
+          } else {
+            self.stopAutorotate();
+          }
+          if (self._controlToggleHandler) {
+            self._controlToggleHandler('autorotateEnabled', enabled);
+          }
+        });
+        autorotateToggleElement._handlerAttached = true;
+      }
+
+      var previewPanel = self._container.parentNode;
+      var fullscreenToggleElement = toggles.fullscreenToggle;
+      if (fullscreenToggleElement && !fullscreenToggleElement._handlerAttached) {
+        fullscreenToggleElement.addEventListener('click', function() {
+          var inFs = document.fullscreenElement === previewPanel;
+          if (!inFs) {
+            if (previewPanel.requestFullscreen) {
+              previewPanel.requestFullscreen();
+            } else if (previewPanel.webkitRequestFullscreen) {
+              previewPanel.webkitRequestFullscreen();
+            }
+          } else if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+        });
+        fullscreenToggleElement._handlerAttached = true;
+      }
+
+      document.addEventListener('fullscreenchange', function() {
+        setToggleState(fullscreenToggleElement, document.fullscreenElement === previewPanel);
+      });
+
+      setToggleState(autorotateToggleElement, !!self._tour.settings.autorotateEnabled);
+      setToggleState(sceneListToggleElement, !(sidebarLeft && sidebarLeft.classList.contains('hidden')));
+      setToggleState(fullscreenToggleElement, document.fullscreenElement === previewPanel);
+      self._updateTitleBar(self._tour.scenes.length ? self._tour.scenes[0].name : '');
+
       var controls = self._viewer.controls();
       var velocity = 0.7;
       var friction = 3;
@@ -409,6 +559,7 @@
     if (this._tour.settings.autorotateEnabled) {
       this.startAutorotate();
     }
+    this._updateTitleBar(entry.data.name || entry.data.title || '');
     return entry;
   };
 
@@ -468,6 +619,21 @@
 
   TourPreview.prototype.onSceneSwitch = function(handler) {
     this._sceneSwitchHandler = handler;
+  };
+
+  TourPreview.prototype.onControlToggle = function(handler) {
+    this._controlToggleHandler = handler;
+  };
+
+  TourPreview.prototype._updateTitleBar = function(sceneName) {
+    var titleBar = document.getElementById('titleBar');
+    if (!titleBar) {
+      return;
+    }
+    var sceneNameEl = titleBar.querySelector('.sceneName');
+    if (sceneNameEl) {
+      sceneNameEl.textContent = sceneName || '';
+    }
   };
 
   TourPreview.prototype.handleClick = function(event) {

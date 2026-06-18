@@ -176,6 +176,14 @@
         currentSceneId = id;
         renderSceneList();
       });
+      preview.onControlToggle(function(setting, value) {
+        if (setting === 'autorotateEnabled') {
+          tour.settings.autorotateEnabled = value;
+          ui.settingAutorotate.checked = value;
+        } else if (setting === 'sceneListToggle') {
+          ui.sceneList.style.display = value ? '' : 'none';
+        }
+      });
     }
     preview.init();
     if (currentSceneId) {
