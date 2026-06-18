@@ -267,6 +267,9 @@
       '  <img class="icon off" src="img/expand.png">\n' +
       '  <img class="icon on" src="img/collapse.png">\n' +
       '</a>\n\n' +
+      '<style>\n' +
+      '  .viewControlButton, #fullscreenToggle, #autorotateToggle, #sceneListToggle { background-color: ' + (data.settings.controlButtonColor || 'rgba(103,115,131,0.8)') + '; }\n' +
+      '</style>\n' +
       '<a href="javascript:void(0)" id="viewUp" class="viewControlButton viewControlButton-1"><img class="icon" src="img/up.png"></a>\n' +
       '<a href="javascript:void(0)" id="viewDown" class="viewControlButton viewControlButton-2"><img class="icon" src="img/down.png"></a>\n' +
       '<a href="javascript:void(0)" id="viewLeft" class="viewControlButton viewControlButton-3"><img class="icon" src="img/left.png"></a>\n' +

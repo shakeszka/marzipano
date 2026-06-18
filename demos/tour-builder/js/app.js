@@ -106,6 +106,7 @@
     ui.settingAutorotate.checked = !!tour.settings.autorotateEnabled;
     ui.settingFullscreen.checked = !!tour.settings.fullscreenButton;
     ui.settingViewControls.checked = !!tour.settings.viewControlButtons;
+    ui.settingControlButtonColor.value = tour.settings.controlButtonColor || '#677383';
     ui.settingMouseModeInputs.forEach(function(input) {
       var checked = input.value === tour.settings.mouseViewMode;
       input.checked = checked;
@@ -283,6 +284,10 @@
       tour.settings.fullscreenButton = ui.settingFullscreen.checked;
       refreshPreview();
     });
+    ui.settingControlButtonColor.addEventListener('input', function() {
+      tour.settings.controlButtonColor = ui.settingControlButtonColor.value;
+      refreshPreview();
+    });
     ui.settingViewControls.addEventListener('change', function() {
       tour.settings.viewControlButtons = ui.settingViewControls.checked;
       refreshPreview();
@@ -379,6 +384,7 @@
       settingAutorotate: $('settingAutorotate'),
       settingFullscreen: $('settingFullscreen'),
       settingViewControls: $('settingViewControls'),
+      settingControlButtonColor: $('settingControlButtonColor'),
       settingMouseModeInputs: document.querySelectorAll('input[name="mouseMode"]')
     };
 

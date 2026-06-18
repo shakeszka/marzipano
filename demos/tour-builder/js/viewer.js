@@ -102,6 +102,17 @@
           var el = document.getElementById(toggles[j]);
           if (el) el.style.backgroundColor = settings.controlButtonColor;
         }
+      } else {
+        // Reset inline background color when no custom color is selected.
+        var btns = document.querySelectorAll('.viewControlButton');
+        for (var k = 0; k < btns.length; k++) {
+          btns[k].style.backgroundColor = '';
+        }
+        var resetToggles = ['fullscreenToggle', 'autorotateToggle', 'sceneListToggle'];
+        for (var l = 0; l < resetToggles.length; l++) {
+          var elReset = document.getElementById(resetToggles[l]);
+          if (elReset) elReset.style.backgroundColor = '';
+        }
       }
     }
 
@@ -319,6 +330,12 @@
       // Clear and append
       sceneListEl.innerHTML = '';
       sceneListEl.appendChild(ul);
+      function updateCurrentSceneHighlight(sceneId) {
+        var anchors = sceneListEl.querySelectorAll('.scene');
+        anchors.forEach(function(anchor) {
+          anchor.classList.toggle('current', anchor.getAttribute('data-id') === sceneId);
+        });
+      }
       // Show scene list immediately on desktop so it doesn't flash away.
       if (sceneListEl) {
         var mql = window.matchMedia ? matchMedia("(max-width: 500px), (max-height: 500px)") : null;
@@ -359,6 +376,7 @@
         viewer.switchScene(scenes[0].scene);
         currentScene = scenes[0].scene;
         updateSceneName(scenes[0].data);
+        updateCurrentSceneHighlight(getSceneId(scenes[0].data));
         if (tourData.settings && tourData.settings.autorotateEnabled) {
           startAutorotate();
         }
@@ -383,6 +401,7 @@
                     sceneAnchors[k].classList.remove('current');
                   }
                   anchor.classList.add('current');
+                  updateCurrentSceneHighlight(id);
                   if (tourData.settings && tourData.settings.autorotateEnabled) {
                     startAutorotate();
                   }

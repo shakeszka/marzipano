@@ -23,6 +23,7 @@
       autorotateEnabled: false,
       fullscreenButton: true,
       viewControlButtons: true
+      , controlButtonColor: '#677383'
     };
     this.scenes = [];
     this._objectUrls = [];
@@ -149,6 +150,56 @@
       targetFov: Math.PI / 2
     });
 
+    // Ensure view control buttons exist in the DOM for the preview and register control methods
+    (function(self) {
+      var parent = self._container.parentNode || document.body;
+      var btnDefs = [
+        { id: 'viewUp', cls: 'viewControlButton viewControlButton-1' },
+        { id: 'viewDown', cls: 'viewControlButton viewControlButton-2' },
+        { id: 'viewLeft', cls: 'viewControlButton viewControlButton-3' },
+        { id: 'viewRight', cls: 'viewControlButton viewControlButton-4' },
+        { id: 'viewIn', cls: 'viewControlButton viewControlButton-5' },
+        { id: 'viewOut', cls: 'viewControlButton viewControlButton-6' }
+      ];
+      btnDefs.forEach(function(def, idx) {
+        if (!document.getElementById(def.id)) {
+          var el = document.createElement('a');
+          el.href = 'javascript:void(0)';
+          el.id = def.id;
+          el.className = def.cls;
+          el.style.position = 'absolute';
+          el.style.right = '12px';
+          el.style.bottom = (12 + idx * 48) + 'px';
+          el.style.width = '40px';
+          el.style.height = '40px';
+          el.style.display = 'flex';
+          el.style.alignItems = 'center';
+          el.style.justifyContent = 'center';
+          el.style.borderRadius = '6px';
+          el.style.zIndex = 999;
+          parent.appendChild(el);
+        }
+      });
+
+      var controls = self._viewer.controls();
+      var velocity = 0.7;
+      var friction = 3;
+      var up = document.getElementById('viewUp');
+      var down = document.getElementById('viewDown');
+      var left = document.getElementById('viewLeft');
+      var right = document.getElementById('viewRight');
+      var inEl = document.getElementById('viewIn');
+      var outEl = document.getElementById('viewOut');
+      if (up) controls.registerMethod('upElement', new Marzipano.ElementPressControlMethod(up, 'y', -velocity, friction), true);
+      if (down) controls.registerMethod('downElement', new Marzipano.ElementPressControlMethod(down, 'y', velocity, friction), true);
+      if (left) controls.registerMethod('leftElement', new Marzipano.ElementPressControlMethod(left, 'x', -velocity, friction), true);
+      if (right) controls.registerMethod('rightElement', new Marzipano.ElementPressControlMethod(right, 'x', velocity, friction), true);
+      if (inEl) controls.registerMethod('inElement', new Marzipano.ElementPressControlMethod(inEl, 'zoom', -velocity, friction), true);
+      if (outEl) controls.registerMethod('outElement', new Marzipano.ElementPressControlMethod(outEl, 'zoom', velocity, friction), true);
+    })(this);
+
+    this._applyControlButtonColor();
+
     this._scenes = this._tour.scenes.map(function(sceneData) {
       return this._createScene(sceneData);
     }, this);
@@ -198,6 +249,19 @@
     }, this);
 
     return { data: sceneData, scene: scene, view: view };
+  };
+
+  TourPreview.prototype._applyControlButtonColor = function() {
+    var color = this._tour.settings.controlButtonColor;
+    var sel = '.viewControlButton, #fullscreenToggle, #autorotateToggle, #sceneListToggle';
+    var buttons = document.querySelectorAll(sel);
+    for (var i = 0; i < buttons.length; i++) {
+      if (color) {
+        buttons[i].style.backgroundColor = color;
+      } else {
+        buttons[i].style.backgroundColor = '';
+      }
+    }
   };
 
   TourPreview.prototype._addLinkHotspot = function(marzipanoScene, sceneData, hotspot) {
