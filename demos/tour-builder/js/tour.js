@@ -437,16 +437,36 @@
     return { data: sceneData, scene: scene, view: view };
   };
 
+  function hexToRgba(hex, alpha) {
+    if (!hex) {
+      return '';
+    }
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+      return r + r + g + g + b + b;
+    });
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    if (!result) {
+      return hex;
+    }
+    var r = parseInt(result[1], 16);
+    var g = parseInt(result[2], 16);
+    var b = parseInt(result[3], 16);
+    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+  }
+
   TourPreview.prototype._applyControlButtonColor = function() {
     var color = this._tour.settings.controlButtonColor;
+    var transparent = color ? hexToRgba(color, 0.7) : '';
+    var titleBarColor = color ? hexToRgba(color, 0.55) : '';
     var sel = '.viewControlButton, #fullscreenToggle, #autorotateToggle, #sceneListToggle';
     var buttons = document.querySelectorAll(sel);
     for (var i = 0; i < buttons.length; i++) {
-      if (color) {
-        buttons[i].style.backgroundColor = color;
-      } else {
-        buttons[i].style.backgroundColor = '';
-      }
+      buttons[i].style.backgroundColor = transparent;
+    }
+    var titleBar = document.getElementById('titleBar');
+    if (titleBar) {
+      titleBar.style.backgroundColor = titleBarColor;
     }
   };
 
