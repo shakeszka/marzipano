@@ -30,7 +30,7 @@
     'vec2 directionToEquirectUV(vec3 dir) {',
     '  float lon = atan(dir.x, -dir.z);',
     '  float lat = asin(clamp(dir.y, -1.0, 1.0));',
-    '  return vec2(lon / (2.0 * PI) + 0.5, 0.5 - lat / PI);',
+    '  return vec2(-lon / (2.0 * PI) + 0.5, 0.5 - lat / PI);',
     '}',
     'vec3 faceDirection(int face, vec2 fc) {',
     '  if (face == 0) return vec3(-fc.x,  fc.y, -1.0);', // b
