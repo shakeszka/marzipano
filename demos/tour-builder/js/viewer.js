@@ -344,15 +344,15 @@
       var ul = document.createElement('ul');
       ul.className = 'scenes';
       data.scenes.forEach(function(sceneData) {
+        var li = document.createElement('li');
+        li.className = 'scene';
+        li.setAttribute('data-id', getSceneId(sceneData));
         var a = document.createElement('a');
         a.href = 'javascript:void(0)';
-        a.className = 'scene';
-        a.setAttribute('data-id', getSceneId(sceneData));
-        var li = document.createElement('li');
-        li.className = 'text';
-        li.textContent = sceneData.title || sceneData.name || 'Untitled Scene';
-        a.appendChild(li);
-        ul.appendChild(a);
+        a.className = 'text';
+        a.textContent = sceneData.title || sceneData.name || 'Untitled Scene';
+        li.appendChild(a);
+        ul.appendChild(li);
       });
       // Clear and append
       sceneListEl.innerHTML = '';

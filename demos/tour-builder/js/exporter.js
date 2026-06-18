@@ -233,9 +233,9 @@
 
   function buildIndexHtml(data) {
     var sceneLinks = data.scenes.map(function(scene) {
-      return '    <a href="javascript:void(0)" class="scene" data-id="' + scene.id + '">\n' +
-        '      <li class="text">' + escapeHtml(scene.name) + '</li>\n' +
-        '    </a>';
+      return '    <li class="scene" data-id="' + scene.id + '">\n' +
+        '      <a href="javascript:void(0)" class="text">' + escapeHtml(scene.name) + '</a>\n' +
+        '    </li>';
     }).join('\n');
 
     var bodyClass = data.settings.viewControlButtons ? 'view-control-buttons' : '';
