@@ -181,7 +181,9 @@
           tour.settings.autorotateEnabled = value;
           ui.settingAutorotate.checked = value;
         } else if (setting === 'sceneListToggle') {
-          ui.sceneList.style.display = value ? '' : 'none';
+          if (ui.sidebarLeft) {
+            ui.sidebarLeft.classList.toggle('hidden', !value);
+          }
         }
       });
     }
@@ -381,6 +383,7 @@
       progressLabel: $('progressLabel'),
       progressBar: $('progressBar'),
       sceneList: $('sceneList'),
+      sidebarLeft: document.querySelector('.sidebar-left'),
       sceneName: $('sceneName'),
       tourName: $('tourName'),
       pano: $('pano'),
