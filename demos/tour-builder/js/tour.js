@@ -213,7 +213,7 @@
       titleBar.style.position = 'absolute';
       titleBar.style.top = '0';
       titleBar.style.left = '40px';
-      titleBar.style.right = '120px';
+      titleBar.style.right = '80px';
       titleBar.style.height = '40px';
       titleBar.style.padding = '0 10px';
       titleBar.style.zIndex = '1001';
