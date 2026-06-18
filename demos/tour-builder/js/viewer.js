@@ -124,6 +124,8 @@
         var alphaColor = hexToRgba(settings.controlButtonColor, 0.55);
         var accentColor = hexToRgba(settings.controlButtonColor, 0.85);
         sceneListHighlightColor = accentColor;
+        document.body.style.setProperty('--accent-color', accentColor);
+        document.body.style.setProperty('--accent-color-alpha', alphaColor);
         var btns = document.querySelectorAll('.viewControlButton');
         for (var i = 0; i < btns.length; i++) {
           btns[i].style.backgroundColor = alphaColor;
@@ -141,6 +143,8 @@
         updateSceneListCurrentHighlight();
       } else {
         sceneListHighlightColor = '';
+        document.body.style.removeProperty('--accent-color');
+        document.body.style.removeProperty('--accent-color-alpha');
         // Reset inline background color when no custom color is selected.
         var btns = document.querySelectorAll('.viewControlButton');
         for (var k = 0; k < btns.length; k++) {
