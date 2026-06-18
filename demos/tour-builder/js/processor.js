@@ -382,10 +382,11 @@
       return Promise.reject(new Error('No files selected.'));
     }
 
+    var existingIdsMap = typeof existingIds === 'function' ? existingIds() : existingIds || {};
     var inputType = detectInputType(list);
     if (inputType === 'equirect') {
       var name = list[0].name;
-      var id = uniqueId(name, existingIds);
+      var id = uniqueId(name, existingIdsMap);
       return loadImageFromFile(list[0]).then(function(image) {
         if (image.width < image.height * 2) {
           throw new Error('Equirectangular image must have a 2:1 aspect ratio.');
@@ -403,7 +404,7 @@
     }
 
     if (inputType === 'equirect-multiple') {
-      var idMap = existingIds();
+      var idMap = Object.assign({}, existingIdsMap);
       var jobs = list.map(function(file, index) {
         var name = file.name;
         var id = uniqueId(name, idMap);
@@ -427,7 +428,7 @@
     }
 
     var name = list[0].name;
-    var id = uniqueId(name, existingIds);
+    var id = uniqueId(name, existingIdsMap);
     return loadCubeFacesFromFiles(list, onProgress).then(function(result) {
       return finalizeScene(id, name, result.faceSize, result.faces, onProgress);
     });
