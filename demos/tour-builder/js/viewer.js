@@ -121,11 +121,9 @@
       }
       // Apply custom control button color if provided in settings
       if (settings.controlButtonColor) {
-        var alphaColor = hexToRgba(settings.controlButtonColor, 0.75);
-        var accentColor = hexToRgba(settings.controlButtonColor, 0.95);
+        var alphaColor = hexToRgba(settings.controlButtonColor, 0.55);
+        var accentColor = hexToRgba(settings.controlButtonColor, 0.85);
         sceneListHighlightColor = accentColor;
-        document.documentElement.style.setProperty('--accent-color', accentColor);
-        document.documentElement.style.setProperty('--accent-color-alpha', alphaColor);
         document.body.style.setProperty('--accent-color', accentColor);
         document.body.style.setProperty('--accent-color-alpha', alphaColor);
         var btns = document.querySelectorAll('.viewControlButton');
