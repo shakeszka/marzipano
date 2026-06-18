@@ -224,9 +224,9 @@
       titleBar.style.color = '#fff';
 
       var toggleDefs = [
-        { id: 'autorotateToggle', icons: ['play.png', 'pause.png'], position: 'right:40px;top:0;', alt: 'Autorotate' },
-        { id: 'fullscreenToggle', icons: ['fullscreen.png', 'windowed.png'], position: 'right:0;top:0;', alt: 'Fullscreen' },
-        { id: 'sceneListToggle', icons: ['expand.png', 'collapse.png'], position: 'left:0;top:0;', alt: 'Scene list' }
+        { id: 'autorotateToggle', icons: ['play.png', 'pause.png'], left: '', right: '40px', top: '0', alt: 'Autorotate' },
+        { id: 'fullscreenToggle', icons: ['fullscreen.png', 'windowed.png'], left: '', right: '0', top: '0', alt: 'Fullscreen' },
+        { id: 'sceneListToggle', icons: ['expand.png', 'collapse.png'], left: '0', right: '', top: '0', alt: 'Scene list' }
       ];
       var toggles = {};
       toggleDefs.forEach(function(def) {
@@ -236,7 +236,21 @@
           el.href = 'javascript:void(0)';
           el.id = def.id;
           el.style.position = 'absolute';
-          el.style.cssText += def.position + ' width:40px; height:40px; padding:5px; background:rgba(103,115,131,0.8); display:flex; align-items:center; justify-content:center; z-index:1001;';
+          if (def.left !== '') {
+            el.style.left = def.left;
+          }
+          if (def.right !== '') {
+            el.style.right = def.right;
+          }
+          el.style.top = def.top;
+          el.style.width = '40px';
+          el.style.height = '40px';
+          el.style.padding = '5px';
+          el.style.background = 'rgba(103,115,131,0.8)';
+          el.style.display = 'flex';
+          el.style.alignItems = 'center';
+          el.style.justifyContent = 'center';
+          el.style.zIndex = '1001';
           el.style.cursor = 'pointer';
           parent.appendChild(el);
         }

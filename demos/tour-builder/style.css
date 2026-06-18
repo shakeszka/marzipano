@@ -295,6 +295,7 @@ button, input, select, textarea {
   padding: 0 10px;
   display: flex;
   align-items: center;
+  justify-content: center;
   background: rgba(0, 0, 0, 0.25);
   color: #fff;
   z-index: 1001;
@@ -305,12 +306,13 @@ button, input, select, textarea {
   width: 100%;
   height: 100%;
   margin: 0;
-  padding: 0 10px;
+  padding: 0;
   font-size: 16px;
   line-height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;
 }
 
 #fullscreenToggle,
@@ -356,9 +358,9 @@ button, input, select, textarea {
 
 /* Builder sidebar scene list uses the page layout, not the sample-tour overlay */
 #sceneList {
-  width: auto;
+  width: 100%;
   max-height: none;
-  padding-top: 0;
+  padding: 0;
   overflow: visible;
   background-color: transparent;
 }
@@ -370,20 +372,28 @@ button, input, select, textarea {
 }
 
 .scene-item {
-  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 8px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: rgba(33, 40, 54, 0.95);
 }
 
 .scene-select {
+  flex: 1;
   display: block;
   width: 100%;
-  height: 40px;
-  padding: 0 15px;
+  min-height: 44px;
+  padding: 0 14px;
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: #fff;
+  color: #eef2f7;
   text-align: left;
-  line-height: 40px;
+  line-height: 44px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
@@ -392,7 +402,17 @@ button, input, select, textarea {
 
 .scene-select:hover,
 .scene-item.active .scene-select {
-  background-color: rgba(103,115,131,0.7);
+  background-color: rgba(45, 125, 210, 0.9);
+}
+
+.scene-remove {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(58, 68, 84, 0.9);
+  color: #fff;
+  cursor: pointer;
 }
 
 .scene-remove {
