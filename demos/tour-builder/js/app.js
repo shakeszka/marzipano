@@ -336,27 +336,6 @@
       }
     });
 
-    ui.btnExport.addEventListener('click', function() {
-      ui.btnExport.disabled = true;
-      ui.btnExport.textContent = 'Exporting…';
-      TourExporter.exportTour(
-        tour,
-        '../../build/marzipano.js',
-        '../sample-tour/style.css',
-        {
-          bowser: '//www.marzipano.net/demos/common/bowser.js',
-          screenfull: '//www.marzipano.net/demos/common/screenfull.js'
-        }
-      ).then(function() {
-        ui.btnExport.disabled = false;
-        ui.btnExport.textContent = 'Export zip';
-      }).catch(function(err) {
-        alert(err.message || String(err));
-        ui.btnExport.disabled = false;
-        ui.btnExport.textContent = 'Export zip';
-      });
-    });
-
     ui.btnSave.addEventListener('click', function() {
       ui.btnSave.disabled = true;
       ui.btnSave.textContent = 'Saving…';
@@ -378,7 +357,6 @@
       fileInput: $('fileInput'),
       btnBrowse: $('btnBrowse'),
       btnAddMore: $('btnAddMore'),
-      btnExport: $('btnExport'),
       btnSave: $('btnSave'),
       progressLabel: $('progressLabel'),
       progressBar: $('progressBar'),
