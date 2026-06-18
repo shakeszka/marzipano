@@ -381,7 +381,9 @@
       updateCurrentSceneHighlight = function(sceneId) {
         var anchors = sceneListEl.querySelectorAll('.scene');
         anchors.forEach(function(anchor) {
-          anchor.classList.toggle('current', anchor.getAttribute('data-id') === sceneId);
+          var isCurrent = anchor.getAttribute('data-id') === sceneId;
+          anchor.classList.toggle('current', isCurrent);
+          anchor.style.backgroundColor = isCurrent && sceneListHighlightColor ? sceneListHighlightColor : '';
         });
       };
       // Show scene list immediately on desktop so it doesn't flash away.
