@@ -317,7 +317,8 @@ button, input, select, textarea {
 
 #fullscreenToggle,
 #autorotateToggle,
-#sceneListToggle {
+#sceneListToggle,
+.viewControlButton {
   display: block;
   position: absolute;
   top: 0;

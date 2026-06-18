@@ -140,10 +140,10 @@
     var accentColor = controlButtonColor ? hexToRgba(controlButtonColor, 0.95) : '';
     var accentColorAlpha = controlButtonColor ? hexToRgba(controlButtonColor, 0.55) : '';
     if (accentColor && accentColorAlpha) {
-      document.documentElement.style.setProperty('--accent-color', accentColor);
-      document.documentElement.style.setProperty('--accent-color-alpha', accentColorAlpha);
-      document.body.style.setProperty('--accent-color', accentColor);
-      document.body.style.setProperty('--accent-color-alpha', accentColorAlpha);
+      document.documentElement.style.setProperty('--accent-color', accentColor, 'important');
+      document.documentElement.style.setProperty('--accent-color-alpha', accentColorAlpha, 'important');
+      document.body.style.setProperty('--accent-color', accentColor, 'important');
+      document.body.style.setProperty('--accent-color-alpha', accentColorAlpha, 'important');
     } else {
       document.documentElement.style.removeProperty('--accent-color');
       document.documentElement.style.removeProperty('--accent-color-alpha');
@@ -196,10 +196,10 @@
           el.style.justifyContent = 'center';
           el.style.borderRadius = '6px';
           el.style.zIndex = 999;
-          el.style.background = initialButtonColor;
+          el.style.setProperty('background-color', initialButtonColor, 'important');
           parent.appendChild(el);
         } else {
-          el.style.background = initialButtonColor;
+          el.style.setProperty('background-color', initialButtonColor, 'important');
         }
         if (!el.querySelector('.icon')) {
           var iconEl = document.createElement('img');
@@ -266,7 +266,7 @@
           el.style.width = '40px';
           el.style.height = '40px';
           el.style.padding = '5px';
-          el.style.background = initialButtonColor;
+          el.style.setProperty('background-color', initialButtonColor, 'important');
           el.style.display = 'flex';
           el.style.alignItems = 'center';
           el.style.justifyContent = 'center';
@@ -274,7 +274,7 @@
           el.style.cursor = 'pointer';
           parent.appendChild(el);
         } else {
-          el.style.background = initialButtonColor;
+          el.style.setProperty('background-color', initialButtonColor, 'important');
         }
         if (!el.querySelector('.icon.off')) {
           var imgOff = document.createElement('img');
