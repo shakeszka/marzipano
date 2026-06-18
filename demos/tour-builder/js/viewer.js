@@ -31,7 +31,7 @@
 
     viewer = new Marzipano.Viewer(container, viewerOpts);
     autorotate = Marzipano.autorotate({
-      yawSpeed: 0.8,
+      yawSpeed: 0.7,
       targetPitch: 0,
       targetFov: Math.PI / 2
     });
@@ -259,26 +259,31 @@
       viewControlButtons: true
     }, tourData.settings || (tourData.tour && tourData.tour.settings) || {});
 
-    // Create scenes
-    data.scenes.forEach(function(sceneData, index) {
-      var scene = createScene(sceneData, index);
-      scenes.push({ data: sceneData, scene: scene });
-    });
-
-    // Switch to first scene
-    if (scenes.length > 0) {
-      viewer.switchScene(scenes[0].scene);
-      currentScene = scenes[0].scene;
-      updateSceneName(scenes[0].data);
-      setupViewerUi(tourData.settings || {});
-      if (tourData.settings && tourData.settings.autorotateEnabled) {
-        startAutorotate();
-      }
-    }
-
-    // Remove loading message
     var statusEl = document.getElementById('loadStatus');
+
+    // Setup UI and hide loading screen immediately so the builder opens
+    // while panoramas continue to load in the background.
+    setupViewerUi(tourData.settings || {});
     if (statusEl) statusEl.style.display = 'none';
+
+    // Create scenes asynchronously so the UI is responsive right away.
+    setTimeout(function() {
+      // Create scenes
+      data.scenes.forEach(function(sceneData, index) {
+        var scene = createScene(sceneData, index);
+        scenes.push({ data: sceneData, scene: scene });
+      });
+
+      // Switch to first scene
+      if (scenes.length > 0) {
+        viewer.switchScene(scenes[0].scene);
+        currentScene = scenes[0].scene;
+        updateSceneName(scenes[0].data);
+        if (tourData.settings && tourData.settings.autorotateEnabled) {
+          startAutorotate();
+        }
+      }
+    }, 0);
   }
 
   function startAutorotate() {
