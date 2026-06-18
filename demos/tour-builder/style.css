@@ -289,18 +289,25 @@ button, input, select, textarea {
 #titleBar {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 40px;
   right: 120px;
   height: 40px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
   z-index: 1001;
+  pointer-events: none;
 }
 
 #titleBar .sceneName {
   width: 100%;
   height: 100%;
-  line-height: 30px;
-  padding: 5px;
-  background-color: rgba(58,68,84,0.8);
+  margin: 0;
+  padding: 0 10px;
+  font-size: 16px;
+  line-height: 40px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -332,7 +339,8 @@ button, input, select, textarea {
 }
 
 #sceneListToggle {
-  right: 80px;
+  left: 0;
+  right: auto;
 }
 
 #fullscreenToggle .icon,
@@ -346,13 +354,13 @@ button, input, select, textarea {
   pointer-events: none;
 }
 
+/* Builder sidebar scene list uses the page layout, not the sample-tour overlay */
 #sceneList {
-  width: 220px;
-  max-height: calc(100% - 40px);
-  padding-top: 40px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background-color: rgba(58,68,84,0.8);
+  width: auto;
+  max-height: none;
+  padding-top: 0;
+  overflow: visible;
+  background-color: transparent;
 }
 
 .scene-list {

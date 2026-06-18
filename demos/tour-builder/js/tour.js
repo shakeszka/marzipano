@@ -199,7 +199,7 @@
         titleBar.id = 'titleBar';
         titleBar.style.position = 'absolute';
         titleBar.style.top = '0';
-        titleBar.style.left = '0';
+        titleBar.style.left = '40px';
         titleBar.style.right = '120px';
         titleBar.style.height = '40px';
         titleBar.style.padding = '0 10px';
@@ -226,7 +226,7 @@
       var toggleDefs = [
         { id: 'autorotateToggle', icons: ['play.png', 'pause.png'], position: 'right:40px;top:0;', alt: 'Autorotate' },
         { id: 'fullscreenToggle', icons: ['fullscreen.png', 'windowed.png'], position: 'right:0;top:0;', alt: 'Fullscreen' },
-        { id: 'sceneListToggle', icons: ['expand.png', 'collapse.png'], position: 'right:80px;top:0;', alt: 'Scene list' }
+        { id: 'sceneListToggle', icons: ['expand.png', 'collapse.png'], position: 'left:0;top:0;', alt: 'Scene list' }
       ];
       var toggles = {};
       toggleDefs.forEach(function(def) {
@@ -457,8 +457,8 @@
 
   TourPreview.prototype._applyControlButtonColor = function() {
     var color = this._tour.settings.controlButtonColor;
-    var transparent = color ? hexToRgba(color, 0.7) : '';
-    var titleBarColor = color ? hexToRgba(color, 0.55) : '';
+    var transparent = color ? hexToRgba(color, 0.55) : '';
+    var titleBarColor = color ? hexToRgba(color, 0.45) : '';
     var sel = '.viewControlButton, #fullscreenToggle, #autorotateToggle, #sceneListToggle';
     var buttons = document.querySelectorAll(sel);
     for (var i = 0; i < buttons.length; i++) {
