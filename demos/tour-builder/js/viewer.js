@@ -96,6 +96,12 @@
         for (var i = 0; i < btns.length; i++) {
           btns[i].style.backgroundColor = settings.controlButtonColor;
         }
+        // Also apply to other toggle buttons
+        var toggles = ['fullscreenToggle', 'autorotateToggle', 'sceneListToggle'];
+        for (var j = 0; j < toggles.length; j++) {
+          var el = document.getElementById(toggles[j]);
+          if (el) el.style.backgroundColor = settings.controlButtonColor;
+        }
       }
     }
 
@@ -313,6 +319,26 @@
       // Clear and append
       sceneListEl.innerHTML = '';
       sceneListEl.appendChild(ul);
+      // Show scene list immediately on desktop so it doesn't flash away.
+      if (sceneListEl) {
+        var mql = window.matchMedia ? matchMedia("(max-width: 500px), (max-height: 500px)") : null;
+        var updateSceneListMode = function() {
+          if (mql && mql.matches) {
+            sceneListEl.classList.remove('enabled');
+            if (sceneListToggleEl) sceneListToggleEl.classList.remove('enabled');
+            document.body.classList.add('mobile');
+            document.body.classList.remove('desktop');
+          } else {
+            sceneListEl.classList.add('enabled');
+            if (sceneListToggleEl) sceneListToggleEl.classList.add('enabled');
+            document.body.classList.add('desktop');
+            document.body.classList.remove('mobile');
+          }
+        };
+        // Run once to set initial state and keep it updated on changes.
+        updateSceneListMode();
+        if (mql) mql.addListener(updateSceneListMode);
+      }
     }
 
     // Setup UI and hide loading screen immediately so the builder opens
