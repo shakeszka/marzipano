@@ -151,6 +151,9 @@
       targetFov: Math.PI / 2
     });
 
+    var controlButtonColor = this._tour.settings.controlButtonColor;
+    var initialButtonColor = controlButtonColor ? hexToRgba(controlButtonColor, 0.55) : 'rgba(103,115,131,0.8)';
+
     // Ensure view control buttons exist in the DOM for the preview and register control methods
     (function(self) {
       var parent = self._container.parentNode || document.body;
@@ -179,7 +182,10 @@
           el.style.justifyContent = 'center';
           el.style.borderRadius = '6px';
           el.style.zIndex = 999;
+          el.style.background = initialButtonColor;
           parent.appendChild(el);
+        } else {
+          el.style.background = initialButtonColor;
         }
         if (!el.querySelector('.icon')) {
           var iconEl = document.createElement('img');
@@ -246,13 +252,15 @@
           el.style.width = '40px';
           el.style.height = '40px';
           el.style.padding = '5px';
-          el.style.background = 'rgba(103,115,131,0.8)';
+          el.style.background = initialButtonColor;
           el.style.display = 'flex';
           el.style.alignItems = 'center';
           el.style.justifyContent = 'center';
           el.style.zIndex = '1001';
           el.style.cursor = 'pointer';
           parent.appendChild(el);
+        } else {
+          el.style.background = initialButtonColor;
         }
         if (!el.querySelector('.icon.off')) {
           var imgOff = document.createElement('img');
