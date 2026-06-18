@@ -359,13 +359,19 @@
       return 'equirect';
     }
     var cubeCount = 0;
+    var plainCount = 0;
     files.forEach(function(file) {
       if (faceFromFilename(file.name)) {
         cubeCount += 1;
+      } else {
+        plainCount += 1;
       }
     });
     if (cubeCount >= 6) {
       return 'cubefaces';
+    }
+    if (plainCount === files.length) {
+      return 'equirect-multiple';
     }
     throw new Error('Could not detect input type. Provide one equirectangular image (2:1) or six cubefaces (_b, _d, _f, _l, _r, _u).');
   }
@@ -377,10 +383,9 @@
     }
 
     var inputType = detectInputType(list);
-    var name = list[0].name;
-    var id = uniqueId(name, existingIds);
-
     if (inputType === 'equirect') {
+      var name = list[0].name;
+      var id = uniqueId(name, existingIds);
       return loadImageFromFile(list[0]).then(function(image) {
         if (image.width < image.height * 2) {
           throw new Error('Equirectangular image must have a 2:1 aspect ratio.');
@@ -397,6 +402,32 @@
       });
     }
 
+    if (inputType === 'equirect-multiple') {
+      var idMap = existingIds();
+      var jobs = list.map(function(file, index) {
+        var name = file.name;
+        var id = uniqueId(name, idMap);
+        idMap[id] = true;
+        return loadImageFromFile(file).then(function(image) {
+          if (image.width < image.height * 2) {
+            throw new Error('Equirectangular image must have a 2:1 aspect ratio.');
+          }
+          var faceSize = computeFaceSize(image.width, image.height);
+          if (faceSize < 512) {
+            throw new Error('Image is too small. Minimum cube face size is 512px.');
+          }
+          if (onProgress) {
+            onProgress('Converting equirectangular panorama ' + (index + 1) + ' of ' + list.length, 0.05 + (index / list.length) * 0.9);
+          }
+          var faces = convertEquirectToFaces(image, faceSize, onProgress);
+          return finalizeScene(id, name, faceSize, faces, onProgress);
+        });
+      });
+      return Promise.all(jobs);
+    }
+
+    var name = list[0].name;
+    var id = uniqueId(name, existingIds);
     return loadCubeFacesFromFiles(list, onProgress).then(function(result) {
       return finalizeScene(id, name, result.faceSize, result.faces, onProgress);
     });

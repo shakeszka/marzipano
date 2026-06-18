@@ -139,12 +139,17 @@
     setProgress('Starting…', 0);
 
     PanoProcessor.processFiles(files, existingIds(), setProgress)
-      .then(function(scene) {
-        tour.addScene(scene);
+      .then(function(result) {
+        var scenes = Array.isArray(result) ? result : [result];
+        scenes.forEach(function(scene) {
+          tour.addScene(scene);
+        });
         setDirty(true);
         showScreen('editor');
         renderSceneList();
-        selectScene(scene.id);
+        if (scenes.length) {
+          selectScene(scenes[0].id);
+        }
       })
       .catch(function(err) {
         alert(err.message || String(err));
