@@ -103,7 +103,7 @@ body.multiple-scenes.mobile #titleBar {
   width: 40px;
   height: 40px;
   padding: 5px;
-  background-color: var(--accent-color-alpha, rgba(103,115,131,0.8));
+  background-color: var(--accent-color-alpha, rgba(103,115,131,0.8)) !important;
 }
 
 .mobile #fullscreenToggle {
@@ -152,7 +152,7 @@ body.fullscreen-enabled #fullscreenToggle {
   width: 40px;
   height: 40px;
   padding: 5px;
-  background-color: var(--accent-color-alpha, rgba(103,115,131,0.8));
+  background-color: var(--accent-color-alpha, rgba(103,115,131,0.8)) !important;
 }
 
 .mobile #autorotateToggle {
@@ -205,7 +205,7 @@ body.fullscreen-enabled.mobile #autorotateToggle {
   width: 40px;
   height: 40px;
   padding: 5px;
-  background-color: var(--accent-color-alpha, rgba(103,115,131,0.8));
+  background-color: var(--accent-color-alpha, rgba(103,115,131,0.8)) !important;
 }
 
 .mobile #sceneListToggle {
@@ -808,8 +808,7 @@ body.single-scene #sceneList, body.single-scene #sceneListToggle {
   width: 40px;
   height: 40px;
   padding: 5px;
-  background-color: rgb(103,115,131);
-  background-color: rgba(103,115,131,0.8);
+  background-color: var(--accent-color-alpha, rgba(103,115,131,0.8)) !important;
 }
 
 body.view-control-buttons .viewControlButton {
