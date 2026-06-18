@@ -325,6 +325,8 @@
     // Build scene list UI (if present in the page)
     var sceneListEl = document.getElementById('sceneList');
     var sceneListToggleEl = document.getElementById('sceneListToggle');
+    var updateCurrentSceneHighlight = null;
+
     // If toggle button missing from the page, create it with expand/collapse icons.
     if (!sceneListToggleEl) {
       sceneListToggleEl = document.createElement('a');
@@ -357,12 +359,12 @@
       // Clear and append
       sceneListEl.innerHTML = '';
       sceneListEl.appendChild(ul);
-      function updateCurrentSceneHighlight(sceneId) {
+      updateCurrentSceneHighlight = function(sceneId) {
         var anchors = sceneListEl.querySelectorAll('.scene');
         anchors.forEach(function(anchor) {
           anchor.classList.toggle('current', anchor.getAttribute('data-id') === sceneId);
         });
-      }
+      };
       // Show scene list immediately on desktop so it doesn't flash away.
       if (sceneListEl) {
         var mql = window.matchMedia ? matchMedia("(max-width: 500px), (max-height: 500px)") : null;
@@ -403,7 +405,9 @@
         viewer.switchScene(scenes[0].scene);
         currentScene = scenes[0].scene;
         updateSceneName(scenes[0].data);
-        updateCurrentSceneHighlight(getSceneId(scenes[0].data));
+        if (typeof updateCurrentSceneHighlight === 'function') {
+          updateCurrentSceneHighlight(getSceneId(scenes[0].data));
+        }
         if (tourData.settings && tourData.settings.autorotateEnabled) {
           startAutorotate();
         }
