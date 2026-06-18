@@ -8,10 +8,21 @@
   var preview = null;
   var currentSceneId = null;
   var currentTourId = null;
+  var tourDirty = false;
   var hotspotMode = null;
   var actionMessageTimeout = null;
 
   var ui = {};
+
+  function updateSaveStatus() {
+    if (!ui.saveStatus) return;
+    ui.saveStatus.textContent = tourDirty ? 'Unsaved changes' : 'Saved';
+  }
+
+  function setDirty(isDirty) {
+    tourDirty = !!isDirty;
+    updateSaveStatus();
+  }
 
   function $(id) {
     return document.getElementById(id);
@@ -130,6 +141,7 @@
     PanoProcessor.processFiles(files, existingIds(), setProgress)
       .then(function(scene) {
         tour.addScene(scene);
+        setDirty(true);
         showScreen('editor');
         renderSceneList();
         selectScene(scene.id);
@@ -157,6 +169,7 @@
   function removeScene(id) {
     if (!confirm('Remove this scene?')) return;
     tour.removeScene(id);
+    setDirty(true);
     if (currentSceneId === id) {
       currentSceneId = tour.scenes.length ? tour.scenes[0].id : null;
     }
@@ -236,6 +249,7 @@
         rotation: coords.rotation,
         target: target
       });
+      setDirty(true);
     }
 
     setHotspotMode(null);
@@ -279,28 +293,34 @@
       if (scene) {
         scene.name = ui.sceneName.value.trim() || scene.id;
         renderSceneList();
+        setDirty(true);
       }
     });
 
     ui.tourName.addEventListener('change', function() {
       tour.name = ui.tourName.value.trim() || 'My Virtual Tour';
+      setDirty(true);
     });
 
     ui.settingAutorotate.addEventListener('change', function() {
       tour.settings.autorotateEnabled = ui.settingAutorotate.checked;
       refreshPreview();
+      setDirty(true);
     });
     ui.settingFullscreen.addEventListener('change', function() {
       tour.settings.fullscreenButton = ui.settingFullscreen.checked;
       refreshPreview();
+      setDirty(true);
     });
     ui.settingControlButtonColor.addEventListener('input', function() {
       tour.settings.controlButtonColor = ui.settingControlButtonColor.value;
       refreshPreview();
+      setDirty(true);
     });
     ui.settingViewControls.addEventListener('change', function() {
       tour.settings.viewControlButtons = ui.settingViewControls.checked;
       refreshPreview();
+      setDirty(true);
     });
     ui.settingMouseModeInputs.forEach(function(input) {
       input.addEventListener('change', function() {
@@ -314,6 +334,7 @@
           });
         }
         refreshPreview();
+        setDirty(true);
       });
     });
 
@@ -323,6 +344,7 @@
         ui.btnSetView.classList.add('active');
         showActionMessage('Initial view saved');
         setTimeout(function() { ui.btnSetView.classList.remove('active'); }, 800);
+        setDirty(true);
       }
     });
 
@@ -342,11 +364,12 @@
       SupabaseIntegration.saveTourToSupabase(tour, preview, currentTourId).then(function(tourId) {
         currentTourId = tourId;
         tour.id = tourId;
+        setDirty(false);
         ui.btnSave.disabled = false;
-        ui.btnSave.textContent = 'Save to cloud';
+        ui.btnSave.textContent = 'Save';
       }).catch(function(err) {
         ui.btnSave.disabled = false;
-        ui.btnSave.textContent = 'Save to cloud';
+        ui.btnSave.textContent = 'Save';
       });
     });
   }
@@ -374,11 +397,19 @@
       settingFullscreen: $('settingFullscreen'),
       settingViewControls: $('settingViewControls'),
       settingControlButtonColor: $('settingControlButtonColor'),
+      saveStatus: $('saveStatus'),
       settingMouseModeInputs: document.querySelectorAll('input[name="mouseMode"]')
     };
 
     bindEvents();
+    window.addEventListener('beforeunload', function(e) {
+      if (tourDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
     syncUiSettings();
+    setDirty(false);
     showScreen('welcome');
 
     // If ?edit=<tourId> is present, load the tour from Supabase and open editor.
