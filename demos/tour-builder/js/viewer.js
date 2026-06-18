@@ -90,6 +90,13 @@
         if (viewInElement) controls.registerMethod('inElement', new Marzipano.ElementPressControlMethod(viewInElement, 'zoom', -velocity, friction), true);
         if (viewOutElement) controls.registerMethod('outElement', new Marzipano.ElementPressControlMethod(viewOutElement, 'zoom', velocity, friction), true);
       }
+      // Apply custom control button color if provided in settings
+      if (settings.controlButtonColor) {
+        var btns = document.querySelectorAll('.viewControlButton');
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].style.backgroundColor = settings.controlButtonColor;
+        }
+      }
     }
 
     if (autorotateToggleElement && !autorotateToggleElement._autorotateHandlerAttached) {
@@ -261,6 +268,28 @@
 
     var statusEl = document.getElementById('loadStatus');
 
+    // Build scene list UI (if present in the page)
+    var sceneListEl = document.getElementById('sceneList');
+    var sceneListToggleEl = document.getElementById('sceneListToggle');
+    if (sceneListEl && Array.isArray(data.scenes)) {
+      var ul = document.createElement('ul');
+      ul.className = 'scenes';
+      data.scenes.forEach(function(sceneData) {
+        var a = document.createElement('a');
+        a.href = 'javascript:void(0)';
+        a.className = 'scene';
+        a.setAttribute('data-id', getSceneId(sceneData));
+        var li = document.createElement('li');
+        li.className = 'text';
+        li.textContent = sceneData.title || sceneData.name || 'Untitled Scene';
+        a.appendChild(li);
+        ul.appendChild(a);
+      });
+      // Clear and append
+      sceneListEl.innerHTML = '';
+      sceneListEl.appendChild(ul);
+    }
+
     // Setup UI and hide loading screen immediately so the builder opens
     // while panoramas continue to load in the background.
     setupViewerUi(tourData.settings || {});
@@ -281,6 +310,53 @@
         updateSceneName(scenes[0].data);
         if (tourData.settings && tourData.settings.autorotateEnabled) {
           startAutorotate();
+        }
+      }
+
+      // Wire up scene list click handlers and toggle behavior now that scenes exist.
+      if (sceneListEl) {
+        var sceneAnchors = sceneListEl.querySelectorAll('.scene');
+        for (var i = 0; i < sceneAnchors.length; i++) {
+          (function(i) {
+            var anchor = sceneAnchors[i];
+            anchor.addEventListener('click', function() {
+              var id = anchor.getAttribute('data-id');
+              for (var j = 0; j < scenes.length; j++) {
+                if (getSceneId(scenes[j].data) === id) {
+                  stopAutorotate();
+                  viewer.switchScene(scenes[j].scene);
+                  currentScene = scenes[j].scene;
+                  updateSceneName(scenes[j].data);
+                  // Update list highlighting
+                  for (var k = 0; k < sceneAnchors.length; k++) {
+                    sceneAnchors[k].classList.remove('current');
+                  }
+                  anchor.classList.add('current');
+                  if (tourData.settings && tourData.settings.autorotateEnabled) {
+                    startAutorotate();
+                  }
+                  break;
+                }
+              }
+            });
+          })(i);
+        }
+      }
+
+      if (sceneListToggleEl) {
+        sceneListToggleEl.addEventListener('click', function() {
+          if (sceneListEl.classList.contains('enabled')) {
+            sceneListEl.classList.remove('enabled');
+            sceneListToggleEl.classList.remove('enabled');
+          } else {
+            sceneListEl.classList.add('enabled');
+            sceneListToggleEl.classList.add('enabled');
+          }
+        });
+        // Show scene list by default on desktop
+        if (!document.body.classList.contains('mobile')) {
+          sceneListEl.classList.add('enabled');
+          sceneListToggleEl.classList.add('enabled');
         }
       }
     }, 0);
