@@ -136,6 +136,21 @@
       this.destroy();
     }
 
+    var controlButtonColor = this._tour.settings.controlButtonColor;
+    var accentColor = controlButtonColor ? hexToRgba(controlButtonColor, 0.95) : '';
+    var accentColorAlpha = controlButtonColor ? hexToRgba(controlButtonColor, 0.55) : '';
+    if (accentColor && accentColorAlpha) {
+      document.documentElement.style.setProperty('--accent-color', accentColor);
+      document.documentElement.style.setProperty('--accent-color-alpha', accentColorAlpha);
+      document.body.style.setProperty('--accent-color', accentColor);
+      document.body.style.setProperty('--accent-color-alpha', accentColorAlpha);
+    } else {
+      document.documentElement.style.removeProperty('--accent-color');
+      document.documentElement.style.removeProperty('--accent-color-alpha');
+      document.body.style.removeProperty('--accent-color');
+      document.body.style.removeProperty('--accent-color-alpha');
+    }
+
     var viewerOpts = {
       controls: {
         mouseViewMode: this._tour.settings.mouseViewMode,
@@ -151,7 +166,6 @@
       targetFov: Math.PI / 2
     });
 
-    var controlButtonColor = this._tour.settings.controlButtonColor;
     var initialButtonColor = controlButtonColor ? hexToRgba(controlButtonColor, 0.55) : 'rgba(103,115,131,0.8)';
 
     // Ensure view control buttons exist in the DOM for the preview and register control methods
