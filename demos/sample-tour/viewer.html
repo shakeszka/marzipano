@@ -43,12 +43,15 @@
     body, html {
       height: 100%;
       width: 100%;
+      --accent-color: rgba(103,115,131,0.8);
+      --accent-color-alpha: rgba(103,115,131,0.8);
     }
     #autorotateToggle,
     #fullscreenToggle,
     .viewControlButton {
       position: absolute;
       z-index: 1001;
+      background-color: var(--accent-color-alpha, rgba(103,115,131,0.8));
     }
     #fullscreenToggle {
       display: block;
@@ -57,7 +60,6 @@
       width: 40px;
       height: 40px;
       padding: 5px;
-      background-color: rgba(103,115,131,0.8);
     }
     #autorotateToggle {
       display: block;
@@ -66,7 +68,23 @@
       width: 40px;
       height: 40px;
       padding: 5px;
-      background-color: rgba(103,115,131,0.8);
+      background-color: var(--accent-color-alpha, rgba(103,115,131,0.8));
+    }
+    #sceneListToggle {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 40px;
+      height: 40px;
+      padding: 5px;
+      background-color: var(--accent-color-alpha, rgba(103,115,131,0.8));
+    }
+    #sceneList .scene:hover {
+      background-color: var(--accent-color, rgba(103,115,131,0.8));
+    }
+    #sceneList .scene.current {
+      background-color: var(--accent-color, rgba(103,115,131,0.8));
     }
     #loadStatus {
       position: absolute;
@@ -129,6 +147,12 @@
       height: 10px;
       background: #fff;
       border-radius: 2px;
+    }
+    #sceneList .scene:hover {
+      background-color: var(--accent-color, rgba(103,115,131,0.8));
+    }
+    #sceneList .scene.current {
+      background-color: var(--accent-color, rgba(103,115,131,0.8));
     }
     .hotspot-title {
       position: absolute;
