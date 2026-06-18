@@ -190,12 +190,12 @@
       var right = document.getElementById('viewRight');
       var inEl = document.getElementById('viewIn');
       var outEl = document.getElementById('viewOut');
-      if (up) controls.registerMethod('upElement', new Marzipano.ElementPressControlMethod(up, 'y', -velocity, friction), true);
-      if (down) controls.registerMethod('downElement', new Marzipano.ElementPressControlMethod(down, 'y', velocity, friction), true);
-      if (left) controls.registerMethod('leftElement', new Marzipano.ElementPressControlMethod(left, 'x', -velocity, friction), true);
-      if (right) controls.registerMethod('rightElement', new Marzipano.ElementPressControlMethod(right, 'x', velocity, friction), true);
-      if (inEl) controls.registerMethod('inElement', new Marzipano.ElementPressControlMethod(inEl, 'zoom', -velocity, friction), true);
-      if (outEl) controls.registerMethod('outElement', new Marzipano.ElementPressControlMethod(outEl, 'zoom', velocity, friction), true);
+      if (up) controls.registerMethod('preview-upElement', new Marzipano.ElementPressControlMethod(up, 'y', -velocity, friction), true);
+      if (down) controls.registerMethod('preview-downElement', new Marzipano.ElementPressControlMethod(down, 'y', velocity, friction), true);
+      if (left) controls.registerMethod('preview-leftElement', new Marzipano.ElementPressControlMethod(left, 'x', -velocity, friction), true);
+      if (right) controls.registerMethod('preview-rightElement', new Marzipano.ElementPressControlMethod(right, 'x', velocity, friction), true);
+      if (inEl) controls.registerMethod('preview-inElement', new Marzipano.ElementPressControlMethod(inEl, 'zoom', -velocity, friction), true);
+      if (outEl) controls.registerMethod('preview-outElement', new Marzipano.ElementPressControlMethod(outEl, 'zoom', velocity, friction), true);
     })(this);
 
     this._applyControlButtonColor();
