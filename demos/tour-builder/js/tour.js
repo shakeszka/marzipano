@@ -128,6 +128,7 @@
     this._hotspotClickHandler = null;
     this._sceneSwitchHandler = null;
     this._autorotate = null;
+    this._controlMethods = [];
   }
 
   TourPreview.prototype.init = function() {
@@ -154,16 +155,17 @@
     (function(self) {
       var parent = self._container.parentNode || document.body;
       var btnDefs = [
-        { id: 'viewUp', cls: 'viewControlButton viewControlButton-1' },
-        { id: 'viewDown', cls: 'viewControlButton viewControlButton-2' },
-        { id: 'viewLeft', cls: 'viewControlButton viewControlButton-3' },
-        { id: 'viewRight', cls: 'viewControlButton viewControlButton-4' },
-        { id: 'viewIn', cls: 'viewControlButton viewControlButton-5' },
-        { id: 'viewOut', cls: 'viewControlButton viewControlButton-6' }
+        { id: 'viewUp', cls: 'viewControlButton viewControlButton-1', icon: 'up.png', alt: 'Up' },
+        { id: 'viewDown', cls: 'viewControlButton viewControlButton-2', icon: 'down.png', alt: 'Down' },
+        { id: 'viewLeft', cls: 'viewControlButton viewControlButton-3', icon: 'left.png', alt: 'Left' },
+        { id: 'viewRight', cls: 'viewControlButton viewControlButton-4', icon: 'right.png', alt: 'Right' },
+        { id: 'viewIn', cls: 'viewControlButton viewControlButton-5', icon: 'plus.png', alt: 'Zoom in' },
+        { id: 'viewOut', cls: 'viewControlButton viewControlButton-6', icon: 'minus.png', alt: 'Zoom out' }
       ];
       btnDefs.forEach(function(def, idx) {
-        if (!document.getElementById(def.id)) {
-          var el = document.createElement('a');
+        var el = document.getElementById(def.id);
+        if (!el) {
+          el = document.createElement('a');
           el.href = 'javascript:void(0)';
           el.id = def.id;
           el.className = def.cls;
@@ -179,6 +181,16 @@
           el.style.zIndex = 999;
           parent.appendChild(el);
         }
+        if (!el.querySelector('.icon')) {
+          var iconEl = document.createElement('img');
+          iconEl.className = 'icon';
+          iconEl.src = '/demos/sample-tour/img/' + def.icon;
+          iconEl.alt = def.alt;
+          iconEl.style.width = '24px';
+          iconEl.style.height = '24px';
+          iconEl.style.pointerEvents = 'none';
+          el.appendChild(iconEl);
+        }
       });
 
       var controls = self._viewer.controls();
@@ -190,12 +202,36 @@
       var right = document.getElementById('viewRight');
       var inEl = document.getElementById('viewIn');
       var outEl = document.getElementById('viewOut');
-      if (up) controls.registerMethod('preview-upElement', new Marzipano.ElementPressControlMethod(up, 'y', -velocity, friction), true);
-      if (down) controls.registerMethod('preview-downElement', new Marzipano.ElementPressControlMethod(down, 'y', velocity, friction), true);
-      if (left) controls.registerMethod('preview-leftElement', new Marzipano.ElementPressControlMethod(left, 'x', -velocity, friction), true);
-      if (right) controls.registerMethod('preview-rightElement', new Marzipano.ElementPressControlMethod(right, 'x', velocity, friction), true);
-      if (inEl) controls.registerMethod('preview-inElement', new Marzipano.ElementPressControlMethod(inEl, 'zoom', -velocity, friction), true);
-      if (outEl) controls.registerMethod('preview-outElement', new Marzipano.ElementPressControlMethod(outEl, 'zoom', velocity, friction), true);
+      if (up) {
+        var upMethod = new Marzipano.ElementPressControlMethod(up, 'y', -velocity, friction);
+        controls.registerMethod('preview-upElement', upMethod, true);
+        self._controlMethods.push(upMethod);
+      }
+      if (down) {
+        var downMethod = new Marzipano.ElementPressControlMethod(down, 'y', velocity, friction);
+        controls.registerMethod('preview-downElement', downMethod, true);
+        self._controlMethods.push(downMethod);
+      }
+      if (left) {
+        var leftMethod = new Marzipano.ElementPressControlMethod(left, 'x', -velocity, friction);
+        controls.registerMethod('preview-leftElement', leftMethod, true);
+        self._controlMethods.push(leftMethod);
+      }
+      if (right) {
+        var rightMethod = new Marzipano.ElementPressControlMethod(right, 'x', velocity, friction);
+        controls.registerMethod('preview-rightElement', rightMethod, true);
+        self._controlMethods.push(rightMethod);
+      }
+      if (inEl) {
+        var inMethod = new Marzipano.ElementPressControlMethod(inEl, 'zoom', -velocity, friction);
+        controls.registerMethod('preview-inElement', inMethod, true);
+        self._controlMethods.push(inMethod);
+      }
+      if (outEl) {
+        var outMethod = new Marzipano.ElementPressControlMethod(outEl, 'zoom', velocity, friction);
+        controls.registerMethod('preview-outElement', outMethod, true);
+        self._controlMethods.push(outMethod);
+      }
     })(this);
 
     this._applyControlButtonColor();
@@ -461,6 +497,14 @@
   };
 
   TourPreview.prototype.destroy = function() {
+    if (this._controlMethods && this._controlMethods.length) {
+      this._controlMethods.forEach(function(method) {
+        if (method && typeof method.destroy === 'function') {
+          method.destroy();
+        }
+      });
+      this._controlMethods = [];
+    }
     if (this._viewer) {
       this._viewer.destroy();
       this._viewer = null;
