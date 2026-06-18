@@ -197,24 +197,12 @@
       if (!titleBar) {
         titleBar = document.createElement('div');
         titleBar.id = 'titleBar';
-        titleBar.style.position = 'absolute';
-        titleBar.style.top = '0';
-        titleBar.style.left = '40px';
-        titleBar.style.right = '120px';
-        titleBar.style.height = '40px';
-        titleBar.style.padding = '0 10px';
-        titleBar.style.zIndex = '1001';
-        titleBar.style.pointerEvents = 'none';
-        titleBar.style.display = 'flex';
-        titleBar.style.alignItems = 'center';
-        titleBar.style.background = 'rgba(0,0,0,0.3)';
-        titleBar.style.color = '#fff';
         var nameEl = document.createElement('h1');
         nameEl.className = 'sceneName';
         nameEl.style.margin = '0';
-        nameEl.style.padding = '5px 0';
+        nameEl.style.padding = '0 10px';
         nameEl.style.fontSize = '16px';
-        nameEl.style.lineHeight = '30px';
+        nameEl.style.lineHeight = '40px';
         nameEl.style.overflow = 'hidden';
         nameEl.style.textOverflow = 'ellipsis';
         nameEl.style.whiteSpace = 'nowrap';
@@ -222,6 +210,18 @@
         titleBar.appendChild(nameEl);
         parent.appendChild(titleBar);
       }
+      titleBar.style.position = 'absolute';
+      titleBar.style.top = '0';
+      titleBar.style.left = '40px';
+      titleBar.style.right = '120px';
+      titleBar.style.height = '40px';
+      titleBar.style.padding = '0 10px';
+      titleBar.style.zIndex = '1001';
+      titleBar.style.pointerEvents = 'none';
+      titleBar.style.display = 'flex';
+      titleBar.style.alignItems = 'center';
+      titleBar.style.background = 'rgba(0,0,0,0.3)';
+      titleBar.style.color = '#fff';
 
       var toggleDefs = [
         { id: 'autorotateToggle', icons: ['play.png', 'pause.png'], position: 'right:40px;top:0;', alt: 'Autorotate' },
